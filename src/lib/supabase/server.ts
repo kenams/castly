@@ -1,11 +1,14 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
+const SUPABASE_URL = 'https://gfmuhkejahvldzqxfpln.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmbXVoa2VqYWh2bGR6cXhmcGxuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NTc3MzEsImV4cCI6MjA5MTEzMzczMX0.cXBUz_fh_FhcHsdPCT0V6MVkPE0nlozHCY3ZqSBb1NE';
+
 export async function createClient() {
   const cookieStore = await cookies();
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() { return cookieStore.getAll(); },
@@ -18,7 +21,7 @@ export async function createClient() {
 export function createServiceClient() {
   const { createClient } = require('@supabase/supabase-js');
   return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 }
