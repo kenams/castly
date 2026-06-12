@@ -5,6 +5,41 @@ import type { CastlyBrief, CastlyProfile } from "@/types";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+function ruleBasedScore(brief: CastlyBrief, profile: CastlyProfile): { score: number; reasons: string[]; blockers: string[] } {
+  let score = 40;
+  const reasons: string[] = [];
+  const blockers: string[] = [];
+
+  const typeMatch = brief.artist_types.some(t => profile.artist_type.includes(t));
+  if (typeMatch) { score += 30; reasons.push("Type d'artiste correspond"); }
+  else { score -= 20; blockers.push("Type d'artiste ne correspond pas"); }
+
+  if (brief.style_tags.length && profile.style_tags.length) {
+    const styleMatch = brief.style_tags.some(s => profile.style_tags.includes(s));
+    if (styleMatch) { score += 15; reasons.push("Style artistique compatible"); }
+  }
+
+  if (brief.required_gender && profile.gender && brief.required_gender !== profile.gender) {
+    score -= 25; blockers.push("Genre ne correspond pas");
+  }
+
+  if (brief.location && profile.city) {
+    const cityNorm = (s: string) => s.toLowerCase().replace(/[^a-z]/g, "");
+    if (cityNorm(brief.location).includes(cityNorm(profile.city)) || cityNorm(profile.city).includes(cityNorm(brief.location))) {
+      score += 10; reasons.push("Même ville");
+    }
+  }
+
+  if (brief.age_min && profile.birth_year) {
+    const age = new Date().getFullYear() - profile.birth_year;
+    if (age < (brief.age_min ?? 0) || age > (brief.age_max ?? 99)) {
+      score -= 15; blockers.push("Âge hors critères");
+    }
+  }
+
+  return { score: Math.min(100, Math.max(0, score)), reasons: reasons.slice(0, 3), blockers: blockers.slice(0, 2) };
+}
+
 async function scoreBriefToProfile(brief: CastlyBrief, profile: CastlyProfile): Promise<{ score: number; reasons: string[]; blockers: string[] }> {
   const prompt = `Tu es un expert casting. Évalue la compatibilité entre ce brief de projet et ce profil d'artiste.
 
@@ -39,16 +74,18 @@ Réponds UNIQUEMENT en JSON:
 
 score = compatibilité globale. reasons = points forts (max 3). blockers = points manquants critiques (max 2).`;
 
-  const res = await anthropic.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 250,
-    messages: [{ role: "user", content: prompt }],
-  });
   try {
+    const res = await anthropic.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 250,
+      messages: [{ role: "user", content: prompt }],
+    });
     const text = res.content[0].type === "text" ? res.content[0].text : "{}";
     const json = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] ?? "{}");
     return { score: Math.min(100, Math.max(0, json.score ?? 0)), reasons: json.reasons ?? [], blockers: json.blockers ?? [] };
-  } catch { return { score: 0, reasons: [], blockers: [] }; }
+  } catch {
+    return ruleBasedScore(brief, profile);
+  }
 }
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {

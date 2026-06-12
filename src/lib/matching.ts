@@ -3,6 +3,43 @@ import type { CastlyProfile, CastlyCasting } from '@/types';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+function ruleBasedMatchScore(profile: CastlyProfile, casting: CastlyCasting): MatchResult {
+  let score = 40;
+  const reasons: string[] = [];
+  const blockers: string[] = [];
+
+  const typeMatch = casting.casting_type.some((t: string) => profile.artist_type.includes(t));
+  if (typeMatch) { score += 30; reasons.push("Type d'artiste correspond au casting"); }
+  else { score -= 20; blockers.push("Type d'artiste ne correspond pas"); }
+
+  if (casting.required_gender && profile.gender && casting.required_gender !== profile.gender) {
+    score -= 25; blockers.push("Genre ne correspond pas");
+  }
+
+  if (casting.location && profile.city) {
+    const n = (s: string) => s.toLowerCase().replace(/[^a-z]/g, "");
+    if (n(casting.location).includes(n(profile.city)) || n(profile.city).includes(n(casting.location))) {
+      score += 10; reasons.push("Localisation compatible");
+    }
+  }
+
+  if (casting.age_min && profile.birth_year) {
+    const age = new Date().getFullYear() - profile.birth_year;
+    if (age < (casting.age_min ?? 0) || age > (casting.age_max ?? 99)) {
+      score -= 15; blockers.push("Âge hors critères");
+    } else {
+      score += 5; reasons.push("Âge dans les critères");
+    }
+  }
+
+  if (casting.required_skills.length && profile.skills.length) {
+    const skillMatch = casting.required_skills.some((s: string) => profile.skills.includes(s));
+    if (skillMatch) { score += 10; reasons.push("Compétences requises présentes"); }
+  }
+
+  return { score: Math.min(100, Math.max(0, score)), reasons: reasons.slice(0, 3), blockers: blockers.slice(0, 2) };
+}
+
 export interface MatchResult {
   score: number;
   reasons: string[];
@@ -65,7 +102,7 @@ Critères de score :
       blockers: (json.blockers ?? []).slice(0, 3),
     };
   } catch {
-    return { score: 50, reasons: ['Profil compatible avec ce type de casting'], blockers: [] };
+    return ruleBasedMatchScore(profile, casting);
   }
 }
 
