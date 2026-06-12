@@ -13,13 +13,13 @@ export async function POST() {
     const admin = createServiceClient();
 
     // Get profile
-    const { data: profile } = await admin
+    const { data: profile, error: profileError } = await admin
       .from("castly_profiles")
       .select("*")
       .eq("user_id", user.id)
       .single();
 
-    if (!profile) return NextResponse.json({ error: "No profile" }, { status: 400 });
+    if (!profile) return NextResponse.json({ error: "No profile", userId: user.id, dbError: profileError?.message }, { status: 400 });
 
     // Seed demo castings if none exist
     const { count } = await admin
