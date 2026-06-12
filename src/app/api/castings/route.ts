@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createServiceClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 // Public endpoint — returns open castings for the explore page
 export async function GET(request: Request) {
@@ -8,8 +8,8 @@ export async function GET(request: Request) {
   const city = searchParams.get("city");
   const paid = searchParams.get("paid");
 
-  const admin = createServiceClient();
-  let query = admin
+  const supabase = await createClient();
+  let query = supabase
     .from("castly_castings")
     .select("*")
     .eq("status", "open")
