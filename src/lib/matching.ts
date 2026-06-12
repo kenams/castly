@@ -8,7 +8,7 @@ function ruleBasedMatchScore(profile: CastlyProfile, casting: CastlyCasting): Ma
   const reasons: string[] = [];
   const blockers: string[] = [];
 
-  const typeMatch = casting.casting_type.some((t: string) => profile.artist_type.includes(t));
+  const typeMatch = casting.casting_type.some((t: string) => profile.artist_type.includes(t as never));
   if (typeMatch) { score += 30; reasons.push("Type d'artiste correspond au casting"); }
   else { score -= 20; blockers.push("Type d'artiste ne correspond pas"); }
 
