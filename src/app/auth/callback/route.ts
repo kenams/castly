@@ -6,7 +6,9 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { data } = await supabase.auth.exchangeCodeForSession(code);
+    const role = data.user?.user_metadata?.role;
+    return NextResponse.redirect(`${origin}${role === "recruiter" ? "/recruiter/onboarding" : "/onboarding"}`);
   }
-  return NextResponse.redirect(`${origin}/dashboard`);
+  return NextResponse.redirect(`${origin}/auth/login`);
 }

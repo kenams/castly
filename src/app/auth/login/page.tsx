@@ -17,9 +17,10 @@ export default function LoginPage() {
     setLoading(true); setError("");
     const supabase = createClient();
     if (!supabase) return;
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password });
     if (err) { setError(err.message); setLoading(false); return; }
-    router.push("/dashboard");
+    const role = data.user?.user_metadata?.role;
+    router.push(role === "recruiter" ? "/recruiter/dashboard" : "/dashboard");
   }
 
   return (
@@ -28,7 +29,7 @@ export default function LoginPage() {
         <Link href="/" className="nav-logo" style={{ display: "block", textAlign: "center", marginBottom: "2rem" }}>Castly</Link>
         <div className="card">
           <h1 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "0.5rem" }}>Connexion</h1>
-          <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.75rem" }}>Retrouve tes castings et matches.</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.75rem" }}>Retrouve ton espace artiste ou recruteur.</p>
           <form onSubmit={handleLogin} style={{ display: "grid", gap: "1rem" }}>
             <div>
               <label className="label">Email</label>
