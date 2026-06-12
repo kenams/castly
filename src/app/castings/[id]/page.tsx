@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { ARTIST_TYPE_LABELS, GENDER_LABELS } from "@/types";
 import type { CastlyCasting } from "@/types";
 
@@ -10,6 +11,8 @@ export default function CastingDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [casting, setCasting] = useState<CastlyCasting | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [matchScore, setMatchScore] = useState<number | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -20,6 +23,16 @@ export default function CastingDetailPage() {
       setLoading(false);
     }
     if (id) load();
+
+    const supabase = createClient();
+    void supabase.auth.getUser().then((result: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
+      if (result.data.user) {
+        setIsLoggedIn(true);
+        fetch(`/api/matches/casting/${id}`).then(r => r.ok ? r.json() : null).then(d => {
+          if (d?.score != null) setMatchScore(d.score);
+        });
+      }
+    });
   }, [id]);
 
   return (
@@ -28,7 +41,10 @@ export default function CastingDetailPage() {
         <Link href="/" className="nav-logo">Castly</Link>
         <div style={{ display: "flex", gap: "0.75rem" }}>
           <Link href="/castings" className="btn-outline" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>← Castings</Link>
-          <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Voir mon score IA</Link>
+          {isLoggedIn
+            ? <Link href="/dashboard" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>← Mon dashboard</Link>
+            : <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Voir mon score IA</Link>
+          }
         </div>
       </nav>
 
@@ -91,18 +107,44 @@ export default function CastingDetailPage() {
             )}
 
             {/* CTA */}
-            <div className="card" style={{ background: "linear-gradient(135deg,rgba(232,184,109,0.07),rgba(56,199,147,0.04))", borderColor: "var(--gold-border)", textAlign: "center", padding: "2rem" }}>
-              <p style={{ fontWeight: 700, marginBottom: "0.5rem", fontSize: "1.1rem" }}>Vois si tu matches avec ce casting</p>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>Crée ton profil gratuit et l&apos;IA calcule ton score de compatibilité.</p>
-              <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                <Link href="/auth/signup" className="btn-gold">Créer mon profil gratuit →</Link>
-                {casting.source_url && (
-                  <a href={casting.source_url} target="_blank" rel="noreferrer" className="btn-outline">
-                    Voir l&apos;offre originale ↗
-                  </a>
+            {isLoggedIn ? (
+              <div className="card" style={{ background: "linear-gradient(135deg,rgba(56,199,147,0.08),rgba(232,184,109,0.05))", borderColor: "rgba(56,199,147,0.3)", textAlign: "center", padding: "2rem" }}>
+                {matchScore != null ? (
+                  <>
+                    <p style={{ fontWeight: 700, marginBottom: "0.5rem", fontSize: "1.1rem" }}>
+                      🎯 Ton score de compatibilité : <span style={{ color: "var(--gold)" }}>{matchScore}/100</span>
+                    </p>
+                    <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
+                      {matchScore >= 70 ? "Excellent profil pour ce casting !" : matchScore >= 50 ? "Bon match — tu mérites de postuler." : "Match partiel — tente ta chance quand même."}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p style={{ fontWeight: 700, marginBottom: "0.5rem", fontSize: "1.1rem" }}>Tu es connecté ✓</p>
+                    <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>Lance le matching IA depuis ton dashboard pour voir ton score.</p>
+                  </>
                 )}
+                <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+                  {casting.source_url && (
+                    <a href={casting.source_url} target="_blank" rel="noreferrer" className="btn-gold">Postuler maintenant ↗</a>
+                  )}
+                  <Link href="/dashboard" className="btn-outline">Mon dashboard →</Link>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="card" style={{ background: "linear-gradient(135deg,rgba(232,184,109,0.07),rgba(56,199,147,0.04))", borderColor: "var(--gold-border)", textAlign: "center", padding: "2rem" }}>
+                <p style={{ fontWeight: 700, marginBottom: "0.5rem", fontSize: "1.1rem" }}>Vois si tu matches avec ce casting</p>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>Crée ton profil gratuit et l&apos;IA calcule ton score de compatibilité.</p>
+                <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+                  <Link href="/auth/signup" className="btn-gold">Créer mon profil gratuit →</Link>
+                  {casting.source_url && (
+                    <a href={casting.source_url} target="_blank" rel="noreferrer" className="btn-outline">
+                      Voir l&apos;offre originale ↗
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
