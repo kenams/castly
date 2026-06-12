@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { ARTIST_TYPE_LABELS, ARTIST_TYPE_ICONS, GENDER_LABELS } from "@/types";
 import type { CastlyProfile } from "@/types";
 
@@ -10,13 +11,33 @@ export default function ArtistProfilePage() {
   const { id } = useParams<{ id: string }>();
   const [artist, setArtist] = useState<Partial<CastlyProfile> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [contactEmail, setContactEmail] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [contactRevealed, setContactRevealed] = useState(false);
+  const [contactLoading, setContactLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     fetch(`/api/artists/${id}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { setArtist(d?.artist ?? null); setLoading(false); });
+
+    const supabase = createClient();
+    void supabase.auth.getUser().then((result: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
+      setIsLoggedIn(!!result.data.user);
+    });
   }, [id]);
+
+  const revealContact = async () => {
+    setContactLoading(true);
+    const r = await fetch(`/api/artists/${id}/contact`);
+    if (r.ok) {
+      const d = await r.json();
+      setContactEmail(d.contact_email);
+      setContactRevealed(true);
+    }
+    setContactLoading(false);
+  };
 
   const age = artist?.birth_year ? new Date().getFullYear() - artist.birth_year : null;
   const links = (artist?.social_links as Record<string, string> | undefined) ?? {};
@@ -27,7 +48,18 @@ export default function ArtistProfilePage() {
         <Link href="/" className="nav-logo">Castly</Link>
         <div style={{ display: "flex", gap: "0.75rem" }}>
           <Link href="/artists" className="btn-outline" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>← Artistes</Link>
-          <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Contacter cet artiste</Link>
+          {isLoggedIn ? (
+            <button
+              className="btn-gold"
+              style={{ padding: "0.45rem 1rem", fontSize: "0.82rem", cursor: "pointer" }}
+              onClick={revealContact}
+              disabled={contactLoading || contactRevealed}
+            >
+              {contactRevealed ? "✓ Contact révélé" : contactLoading ? "…" : "Contacter cet artiste"}
+            </button>
+          ) : (
+            <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Contacter cet artiste</Link>
+          )}
         </div>
       </nav>
 
@@ -67,6 +99,22 @@ export default function ArtistProfilePage() {
                 </div>
               )}
             </div>
+
+            {/* CONTACT RÉVÉLÉ */}
+            {contactRevealed && contactEmail && (
+              <div className="card" style={{ background: "linear-gradient(135deg,rgba(56,199,147,0.08),rgba(232,184,109,0.05))", borderColor: "rgba(56,199,147,0.3)", padding: "1.5rem" }}>
+                <h2 style={{ fontWeight: 700, marginBottom: "0.75rem", fontSize: "0.9rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>📧 Contact</h2>
+                <a
+                  href={`mailto:${contactEmail}?subject=Opportunité casting — Castly`}
+                  style={{ color: "var(--gold)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}
+                >
+                  {contactEmail}
+                </a>
+                <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.5rem" }}>
+                  Cliquez pour ouvrir votre client mail, ou copiez l&apos;adresse.
+                </p>
+              </div>
+            )}
 
             {/* INFOS PHYSIQUES */}
             {(artist.height_cm || artist.eye_color || artist.hair_color) && (
@@ -125,12 +173,23 @@ export default function ArtistProfilePage() {
               </div>
             )}
 
-            {/* CTA RECRUTEUR */}
-            <div className="card" style={{ background: "linear-gradient(135deg,rgba(232,184,109,0.07),rgba(56,199,147,0.04))", borderColor: "var(--gold-border)", textAlign: "center", padding: "2rem" }}>
-              <p style={{ fontWeight: 700, marginBottom: "0.5rem" }}>Cet artiste vous intéresse ?</p>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>Créez un compte recruteur pour contacter {artist.display_name} et accéder à tous les profils.</p>
-              <Link href="/auth/signup" className="btn-gold">Créer un compte recruteur →</Link>
-            </div>
+            {/* CTA selon état auth */}
+            {!isLoggedIn && (
+              <div className="card" style={{ background: "linear-gradient(135deg,rgba(232,184,109,0.07),rgba(56,199,147,0.04))", borderColor: "var(--gold-border)", textAlign: "center", padding: "2rem" }}>
+                <p style={{ fontWeight: 700, marginBottom: "0.5rem" }}>Cet artiste vous intéresse ?</p>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>Créez un compte recruteur pour contacter {artist.display_name} et accéder à tous les profils.</p>
+                <Link href="/auth/signup" className="btn-gold">Créer un compte recruteur →</Link>
+              </div>
+            )}
+            {isLoggedIn && !contactRevealed && (
+              <div className="card" style={{ background: "linear-gradient(135deg,rgba(232,184,109,0.07),rgba(56,199,147,0.04))", borderColor: "var(--gold-border)", textAlign: "center", padding: "2rem" }}>
+                <p style={{ fontWeight: 700, marginBottom: "0.5rem" }}>Prêt à contacter {artist.display_name} ?</p>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>Révélez l&apos;adresse email pour démarrer la conversation directement.</p>
+                <button className="btn-gold" onClick={revealContact} disabled={contactLoading} style={{ cursor: "pointer" }}>
+                  {contactLoading ? "Chargement…" : "📧 Révéler le contact"}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -92,6 +92,7 @@ export default function OnboardingPage() {
       day_rate_eur: form.day_rate_eur ? parseInt(form.day_rate_eur) : null,
       is_visible: form.is_visible,
       is_complete: true,
+      contact_email: user.email,
     });
     if (upsertErr) { setError(upsertErr.message); setSaving(false); return; }
     await fetch("/api/match", { method: "POST" });

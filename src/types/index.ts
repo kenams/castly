@@ -123,6 +123,7 @@ export interface CastlyProfile {
   };
   hourly_rate_eur?: number;
   day_rate_eur?: number;
+  contact_email?: string;
   created_at: string;
   updated_at: string;
 }
