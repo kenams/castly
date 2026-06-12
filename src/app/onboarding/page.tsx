@@ -10,9 +10,9 @@ const STEPS = ["Type artistique", "Profil physique", "Compétences", "Bio"];
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const supabase = createClient();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
     display_name: "",
@@ -39,10 +39,12 @@ export default function OnboardingPage() {
   }
 
   async function handleFinish() {
-    setSaving(true);
+    setSaving(true); setError("");
+    const supabase = createClient();
+    if (!supabase) return;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/auth/login"); return; }
-    await supabase.from("castly_profiles").upsert({
+    const { error: upsertErr } = await supabase.from("castly_profiles").upsert({
       user_id: user.id,
       display_name: form.display_name || user.email?.split("@")[0] || "Artiste",
       artist_type: form.artist_type.length ? form.artist_type : ["actor"],
@@ -58,6 +60,7 @@ export default function OnboardingPage() {
       bio: form.bio || null,
       is_complete: true,
     });
+    if (upsertErr) { setError(upsertErr.message); setSaving(false); return; }
     await fetch("/api/match", { method: "POST" });
     router.push("/dashboard");
   }
@@ -68,7 +71,7 @@ export default function OnboardingPage() {
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           <span className="nav-logo">Castly</span>
           <p style={{ color: "var(--text-muted)", marginTop: "0.5rem", fontSize: "0.9rem" }}>
-            Crée ton profil artiste — {step + 1}/{STEPS.length}
+            Crée ton profil artiste — étape {step + 1}/{STEPS.length}
           </p>
         </div>
 
@@ -154,14 +157,14 @@ export default function OnboardingPage() {
                 <input className="input" value={form.skills} onChange={e => setForm(f => ({ ...f, skills: e.target.value }))} placeholder="Ex: chant, danse hip-hop, improvisation…" />
               </div>
               <div>
-                <label className="label">Langues parlées</label>
+                <label className="label">Langues parlées (séparées par des virgules)</label>
                 <input className="input" value={form.languages} onChange={e => setForm(f => ({ ...f, languages: e.target.value }))} placeholder="fr, en, es…" />
               </div>
               <div>
                 <label className="label">Années d&apos;expérience</label>
                 <select className="input" value={form.experience_years} onChange={e => setForm(f => ({ ...f, experience_years: e.target.value }))}>
                   {["0","1","2","3","5","8","10"].map(v => (
-                    <option key={v} value={v}>{v === "0" ? "Débutant" : v === "10" ? "10 ans et plus" : `${v} ans`}</option>
+                    <option key={v} value={v}>{v === "0" ? "Débutant" : v === "10" ? "10 ans et plus" : `${v} an${parseInt(v) > 1 ? "s" : ""}`}</option>
                   ))}
                 </select>
               </div>
@@ -187,6 +190,8 @@ export default function OnboardingPage() {
             </div>
           )}
 
+          {error && <p style={{ color: "var(--red)", fontSize: "0.85rem", marginTop: "1rem" }}>{error}</p>}
+
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2rem", gap: "1rem" }}>
             {step > 0
               ? <button className="btn-outline" onClick={() => setStep(s => s - 1)}>← Retour</button>
@@ -194,7 +199,7 @@ export default function OnboardingPage() {
             {step < STEPS.length - 1
               ? <button className="btn-gold" onClick={() => setStep(s => s + 1)}>Suivant →</button>
               : <button className="btn-gold" onClick={handleFinish} disabled={saving}>
-                  {saving ? "Analyse en cours…" : "Voir mes castings →"}
+                  {saving ? "⚡ Analyse IA en cours…" : "Voir mes castings →"}
                 </button>}
           </div>
         </div>

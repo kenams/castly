@@ -10,15 +10,46 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setError("");
-    const { error: err } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } });
+    const supabase = createClient();
+    if (!supabase) return;
+    const { data, error: err } = await supabase.auth.signUp({
+      email, password,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
     if (err) { setError(err.message); setLoading(false); return; }
-    router.push("/onboarding");
+    if (data.session) {
+      router.push("/onboarding");
+    } else {
+      setEmailSent(true);
+      setLoading(false);
+    }
+  }
+
+  if (emailSent) {
+    return (
+      <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+        <div style={{ width: "100%", maxWidth: 420 }}>
+          <Link href="/" className="nav-logo" style={{ display: "block", textAlign: "center", marginBottom: "2rem" }}>Castly</Link>
+          <div className="card" style={{ textAlign: "center", padding: "2.5rem" }}>
+            <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>📧</div>
+            <h2 style={{ fontWeight: 800, marginBottom: "0.75rem" }}>Vérifie ta boîte mail</h2>
+            <p style={{ color: "var(--text-muted)", lineHeight: 1.6, marginBottom: "1.5rem" }}>
+              Un lien de confirmation a été envoyé à <strong style={{ color: "var(--text)" }}>{email}</strong>.
+              Clique dessus pour activer ton compte.
+            </p>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
+              Déjà confirmé ? <Link href="/auth/login" style={{ color: "var(--gold)", textDecoration: "none" }}>Connexion</Link>
+            </p>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   return (
