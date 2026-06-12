@@ -20,8 +20,6 @@ export async function createClient() {
 
 export function createServiceClient() {
   const { createClient } = require('@supabase/supabase-js');
-  return createClient(
-    SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmbXVoa2VqYWh2bGR6cXhmcGxuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDAyMDcyOCwiZXhwIjoyMDU5NTk2NzI4fQ.6xvbKv8KRD_SFt1OQjbPsOTJ_aA3wqkTFUGNJY-rPHs';
+  return createClient(SUPABASE_URL, serviceKey);
 }
