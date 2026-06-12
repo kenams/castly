@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createServiceClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -10,10 +10,10 @@ export async function GET(request: Request) {
   const age_min = searchParams.get("age_min");
   const age_max = searchParams.get("age_max");
 
-  const admin = createServiceClient();
+  const supabase = await createClient();
   const currentYear = new Date().getFullYear();
 
-  let query = admin
+  let query = supabase
     .from("castly_profiles")
     .select("id, display_name, artist_type, gender, birth_year, city, height_cm, eye_color, hair_color, bio, skills, style_tags, social_links, experience_years, avatar_url, is_visible, day_rate_eur")
     .eq("is_visible", true)

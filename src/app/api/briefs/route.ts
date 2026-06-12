@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
-  const admin = createServiceClient();
-  const { data, error } = await admin
+  const supabase = await createClient();
+  const { data, error } = await supabase
     .from("castly_briefs")
     .select("*, recruiter:castly_recruiters(company_name, recruiter_type, city, verified)")
-    .eq("status", "open")
-    .order("is_featured", { ascending: false })
+    .neq("status", "draft")
     .order("created_at", { ascending: false })
     .limit(50);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -19,8 +18,7 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const admin = createServiceClient();
-  const { data: recruiter } = await admin
+  const { data: recruiter } = await supabase
     .from("castly_recruiters")
     .select("id")
     .eq("user_id", user.id)
@@ -28,7 +26,7 @@ export async function POST(req: Request) {
   if (!recruiter) return NextResponse.json({ error: "Recruiter profile not found" }, { status: 404 });
 
   const body = await req.json();
-  const { data, error } = await admin.from("castly_briefs").insert({
+  const { data, error } = await supabase.from("castly_briefs").insert({
     recruiter_id: recruiter.id,
     title: body.title,
     description: body.description || null,

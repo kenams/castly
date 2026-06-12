@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import Anthropic from "@anthropic-ai/sdk";
 import type { CastlyBrief, CastlyProfile } from "@/types";
 
@@ -57,18 +57,14 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const admin = createServiceClient();
-
-  // Verify brief belongs to this recruiter
-  const { data: brief } = await admin.from("castly_briefs")
+  const { data: brief } = await supabase.from("castly_briefs")
     .select("*, recruiter:castly_recruiters!inner(user_id)")
     .eq("id", id)
     .single() as { data: (CastlyBrief & { recruiter: { user_id: string } }) | null };
   if (!brief || (brief.recruiter as { user_id: string }).user_id !== user.id)
     return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Get visible artists matching the types
-  const { data: profiles } = await admin.from("castly_profiles")
+  const { data: profiles } = await supabase.from("castly_profiles")
     .select("*")
     .eq("is_visible", true)
     .eq("is_complete", true)
@@ -78,15 +74,13 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   if (!profiles?.length) return NextResponse.json({ matched: 0, message: "No visible artists" });
 
-  // Get already matched
-  const { data: existing } = await admin.from("castly_brief_matches")
+  const { data: existing } = await supabase.from("castly_brief_matches")
     .select("profile_id").eq("brief_id", id);
   const matchedIds = new Set((existing ?? []).map((m: { profile_id: string }) => m.profile_id));
   const toScore = (profiles as CastlyProfile[]).filter(p => !matchedIds.has(p.id));
 
   if (!toScore.length) return NextResponse.json({ matched: 0, message: "All profiles already matched" });
 
-  // Score in parallel
   const results = await Promise.all(
     toScore.map(async profile => {
       const r = await scoreBriefToProfile(brief as CastlyBrief, profile);
@@ -106,6 +100,6 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       status: "new",
     }));
 
-  if (toInsert.length) await admin.from("castly_brief_matches").insert(toInsert);
+  if (toInsert.length) await supabase.from("castly_brief_matches").insert(toInsert);
   return NextResponse.json({ matched: toInsert.length, total: results.length });
 }
