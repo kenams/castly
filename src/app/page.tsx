@@ -1,6 +1,16 @@
+"use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 export default function HomePage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then((result: Awaited<ReturnType<typeof supabase.auth.getUser>>) => setIsLoggedIn(!!result.data.user));
+  }, []);
+
   return (
     <main style={{ minHeight: "100vh", background: "var(--bg)" }}>
       {/* NAV */}
@@ -8,8 +18,14 @@ export default function HomePage() {
         <Link href="/" className="nav-logo">Castly</Link>
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
           <Link href="/castings" style={{ color: "var(--text-muted)", fontSize: "0.88rem", textDecoration: "none", padding: "0.45rem 0.75rem" }}>Castings</Link>
-          <Link href="/auth/login" className="btn-outline" style={{ padding: "0.5rem 1.2rem", fontSize: "0.85rem" }}>Connexion</Link>
-          <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.5rem 1.2rem", fontSize: "0.85rem" }}>Commencer</Link>
+          {isLoggedIn ? (
+            <Link href="/dashboard" className="btn-gold" style={{ padding: "0.5rem 1.2rem", fontSize: "0.85rem" }}>Mon dashboard →</Link>
+          ) : (
+            <>
+              <Link href="/auth/login" className="btn-outline" style={{ padding: "0.5rem 1.2rem", fontSize: "0.85rem" }}>Connexion</Link>
+              <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.5rem 1.2rem", fontSize: "0.85rem" }}>Commencer</Link>
+            </>
+          )}
         </div>
       </nav>
 
@@ -75,6 +91,40 @@ export default function HomePage() {
           {["🎬 Acteur / Actrice","🎤 Chanteur / Chanteuse","🎤 Rappeur / Rappeuse","💃 Danseur / Danseuse","📸 Mannequin","🎸 Musicien","😄 Humoriste","📺 Présentateur","🎙️ Comédien voix"].map(t => (
             <span key={t} className="pill-muted pill">{t}</span>
           ))}
+        </div>
+      </section>
+
+      {/* SECTION RECRUTEUR */}
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: "4rem 2rem", borderTop: "1px solid var(--border)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center" }}>
+          <div>
+            <div className="pill" style={{ marginBottom: "1rem", fontSize: "0.78rem", display: "inline-flex" }}>🎬 Pour les recruteurs</div>
+            <h2 style={{ fontSize: "1.8rem", fontWeight: 800, lineHeight: 1.2, marginBottom: "0.75rem" }}>
+              Trouvez le talent parfait<br /><span style={{ color: "var(--gold)" }}>en quelques minutes</span>
+            </h2>
+            <p style={{ color: "var(--text-muted)", lineHeight: 1.65, marginBottom: "1.5rem" }}>
+              Décrivez votre projet en un brief. Notre IA parcourt tous les profils artistes et vous propose les candidats les plus compatibles, scorés et classés.
+            </p>
+            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+              <Link href="/auth/signup" className="btn-gold" style={{ fontSize: "0.9rem" }}>Créer un compte recruteur →</Link>
+              <Link href="/artists" className="btn-outline" style={{ fontSize: "0.9rem" }}>Parcourir les artistes</Link>
+            </div>
+          </div>
+          <div style={{ display: "grid", gap: "0.75rem" }}>
+            {[
+              { icon: "📝", t: "Brief en 3 étapes", d: "Décris ton projet, le profil cherché, les critères. 5 minutes." },
+              { icon: "⚡", t: "Matching IA instantané", d: "L'IA analyse tous les profils et te sort les meilleurs candidats scorés." },
+              { icon: "📧", t: "Contact direct", d: "Révèle l'email de l'artiste et contacte-le sans intermédiaire." },
+            ].map(f => (
+              <div key={f.t} className="card" style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start", padding: "1rem" }}>
+                <span style={{ fontSize: "1.2rem" }}>{f.icon}</span>
+                <div>
+                  <p style={{ fontWeight: 700, fontSize: "0.9rem" }}>{f.t}</p>
+                  <p style={{ color: "var(--text-muted)", fontSize: "0.82rem" }}>{f.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

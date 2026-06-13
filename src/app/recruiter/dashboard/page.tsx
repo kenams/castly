@@ -24,6 +24,7 @@ export default function RecruiterDashboard() {
   const [matching, setMatching] = useState(false);
   const [saving, setSaving] = useState(false);
   const [matchFilter, setMatchFilter] = useState<"all" | "shortlisted">("all");
+  const [revealedContacts, setRevealedContacts] = useState<Record<string, string>>({});
 
   const [form, setForm] = useState({
     title: "",
@@ -77,6 +78,15 @@ export default function RecruiterDashboard() {
     await fetch(`/api/briefs/${activeBrief.id}/match`, { method: "POST" });
     await loadMatches(activeBrief);
     setMatching(false);
+  }
+
+  async function revealContact(profileId: string) {
+    if (revealedContacts[profileId]) return;
+    const r = await fetch(`/api/artists/${profileId}/contact`);
+    if (r.ok) {
+      const d = await r.json();
+      setRevealedContacts(prev => ({ ...prev, [profileId]: d.contact_email }));
+    }
   }
 
   async function updateMatchStatus(matchId: string, status: string) {
@@ -390,6 +400,17 @@ export default function RecruiterDashboard() {
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", alignItems: "flex-end", flexShrink: 0 }}>
                         <Link href={`/artists/${p.id}`} target="_blank" className="btn-outline" style={{ padding: "0.3rem 0.8rem", fontSize: "0.75rem" }}>Voir profil →</Link>
+                        {revealedContacts[p.id as string] ? (
+                          <a href={`mailto:${revealedContacts[p.id as string]}?subject=Opportunité — Castly`}
+                            style={{ padding: "0.3rem 0.8rem", fontSize: "0.75rem", borderRadius: "999px", border: "1px solid rgba(56,199,147,0.4)", background: "rgba(56,199,147,0.08)", color: "var(--green)", textDecoration: "none", whiteSpace: "nowrap" }}>
+                            📧 {revealedContacts[p.id as string]}
+                          </a>
+                        ) : (
+                          <button onClick={() => revealContact(p.id as string)}
+                            style={{ padding: "0.3rem 0.8rem", fontSize: "0.75rem", borderRadius: "999px", border: "1px solid var(--gold-border)", background: "var(--gold-dim)", color: "var(--gold)", cursor: "pointer" }}>
+                            📧 Contacter
+                          </button>
+                        )}
                         <button onClick={() => updateMatchStatus(match.id, match.status === "shortlisted" ? "new" : "shortlisted")}
                           style={{ padding: "0.3rem 0.8rem", fontSize: "0.75rem", borderRadius: "999px", border: "1px solid var(--border)", background: match.status === "shortlisted" ? "var(--gold-dim)" : "transparent", color: match.status === "shortlisted" ? "var(--gold)" : "var(--text-muted)", cursor: "pointer" }}>
                           {match.status === "shortlisted" ? "★ Sélectionné" : "☆ Sélectionner"}

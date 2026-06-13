@@ -2,6 +2,7 @@
 export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { ARTIST_TYPE_LABELS, ARTIST_TYPE_ICONS } from "@/types";
 import type { ArtistType, CastlyProfile } from "@/types";
 
@@ -18,6 +19,12 @@ export default function ArtistsPage() {
   const [genderFilter, setGenderFilter] = useState("");
   const [citySearch, setCitySearch] = useState("");
   const [styleSearch, setStyleSearch] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then((result: Awaited<ReturnType<typeof supabase.auth.getUser>>) => setIsLoggedIn(!!result.data.user));
+  }, []);
 
   useEffect(() => {
     const p = new URLSearchParams();
@@ -37,8 +44,14 @@ export default function ArtistsPage() {
         <Link href="/" className="nav-logo">Castly</Link>
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
           <Link href="/castings" style={{ color: "var(--text-muted)", fontSize: "0.85rem", textDecoration: "none" }}>Castings</Link>
-          <Link href="/auth/login" className="btn-outline" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Connexion</Link>
-          <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>S&apos;inscrire</Link>
+          {isLoggedIn ? (
+            <Link href="/dashboard" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Mon dashboard →</Link>
+          ) : (
+            <>
+              <Link href="/auth/login" className="btn-outline" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Connexion</Link>
+              <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>S&apos;inscrire</Link>
+            </>
+          )}
         </div>
       </nav>
 
@@ -46,7 +59,8 @@ export default function ArtistsPage() {
         <div style={{ marginBottom: "2rem" }}>
           <h1 style={{ fontSize: "2rem", fontWeight: 900, marginBottom: "0.5rem" }}>Artistes disponibles</h1>
           <p style={{ color: "var(--text-muted)" }}>
-            {artists.length} profils visibles — <Link href="/auth/signup?role=recruiter" style={{ color: "var(--gold)", textDecoration: "none" }}>Inscris-toi comme recruteur</Link> pour contacter les artistes et utiliser l&apos;IA de matching
+            {artists.length} profils visibles
+            {!isLoggedIn && <> — <Link href="/auth/signup?role=recruiter" style={{ color: "var(--gold)", textDecoration: "none" }}>Inscris-toi comme recruteur</Link> pour contacter les artistes et utiliser l&apos;IA de matching</>}
           </p>
         </div>
 
@@ -65,14 +79,16 @@ export default function ArtistsPage() {
           <input className="input" placeholder="Style (trap, R&B, ballet…)" value={styleSearch} onChange={e => setStyleSearch(e.target.value)} />
         </div>
 
-        {/* CTA RECRUTEUR */}
-        <div className="card" style={{ background: "linear-gradient(135deg,rgba(232,184,109,0.07),rgba(56,199,147,0.04))", borderColor: "var(--gold-border)", marginBottom: "1.75rem", display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
-          <div style={{ flex: 1 }}>
-            <p style={{ fontWeight: 700, marginBottom: "0.2rem" }}>🎬 Vous cherchez des artistes pour un projet ?</p>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.88rem" }}>Postez un brief et l&apos;IA vous trouve les profils les plus compatibles en quelques secondes.</p>
+        {/* CTA RECRUTEUR — seulement si non connecté */}
+        {!isLoggedIn && (
+          <div className="card" style={{ background: "linear-gradient(135deg,rgba(232,184,109,0.07),rgba(56,199,147,0.04))", borderColor: "var(--gold-border)", marginBottom: "1.75rem", display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: 700, marginBottom: "0.2rem" }}>🎬 Vous cherchez des artistes pour un projet ?</p>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.88rem" }}>Postez un brief et l&apos;IA vous trouve les profils les plus compatibles en quelques secondes.</p>
+            </div>
+            <Link href="/auth/signup" className="btn-gold" style={{ flexShrink: 0 }}>Poster un brief →</Link>
           </div>
-          <Link href="/auth/signup" className="btn-gold" style={{ flexShrink: 0 }}>Poster un brief →</Link>
-        </div>
+        )}
 
         {/* GRID */}
         {loading ? (

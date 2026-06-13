@@ -2,6 +2,7 @@
 export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { ARTIST_TYPE_LABELS } from "@/types";
 import type { ArtistType, CastlyCasting } from "@/types";
 
@@ -20,6 +21,12 @@ export default function CastingsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<ArtistType | "all">("all");
   const [search, setSearch] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then((result: Awaited<ReturnType<typeof supabase.auth.getUser>>) => setIsLoggedIn(!!result.data.user));
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -45,8 +52,14 @@ export default function CastingsPage() {
       <nav className="nav">
         <Link href="/" className="nav-logo">Castly</Link>
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-          <Link href="/auth/login" className="btn-outline" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Connexion</Link>
-          <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>S&apos;inscrire</Link>
+          {isLoggedIn ? (
+            <Link href="/dashboard" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Mon dashboard →</Link>
+          ) : (
+            <>
+              <Link href="/auth/login" className="btn-outline" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Connexion</Link>
+              <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>S&apos;inscrire</Link>
+            </>
+          )}
         </div>
       </nav>
 
@@ -54,7 +67,8 @@ export default function CastingsPage() {
         <div style={{ marginBottom: "2rem" }}>
           <h1 style={{ fontSize: "2rem", fontWeight: 900, marginBottom: "0.5rem" }}>Castings disponibles</h1>
           <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>
-            {castings.length} offres indexées — <Link href="/auth/signup" style={{ color: "var(--gold)", textDecoration: "none" }}>Inscris-toi</Link> pour voir ton score de compatibilité
+            {castings.length} offres indexées
+            {!isLoggedIn && <> — <Link href="/auth/signup" style={{ color: "var(--gold)", textDecoration: "none" }}>Inscris-toi</Link> pour voir ton score de compatibilité</>}
           </p>
         </div>
 
@@ -83,14 +97,16 @@ export default function CastingsPage() {
           </div>
         </div>
 
-        {/* CTA BAND */}
-        <div className="card" style={{ background: "linear-gradient(135deg,rgba(232,184,109,0.07),rgba(56,199,147,0.04))", borderColor: "var(--gold-border)", marginBottom: "1.75rem", display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
-          <div style={{ flex: 1 }}>
-            <p style={{ fontWeight: 700, marginBottom: "0.25rem" }}>Vois ton score de compatibilité sur chaque casting</p>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.88rem" }}>L&apos;IA analyse ton profil et classe les offres par chance de succès.</p>
+        {/* CTA BAND — seulement si non connecté */}
+        {!isLoggedIn && (
+          <div className="card" style={{ background: "linear-gradient(135deg,rgba(232,184,109,0.07),rgba(56,199,147,0.04))", borderColor: "var(--gold-border)", marginBottom: "1.75rem", display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: 700, marginBottom: "0.25rem" }}>Vois ton score de compatibilité sur chaque casting</p>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.88rem" }}>L&apos;IA analyse ton profil et classe les offres par chance de succès.</p>
+            </div>
+            <Link href="/auth/signup" className="btn-gold" style={{ flexShrink: 0 }}>Créer mon profil gratuit →</Link>
           </div>
-          <Link href="/auth/signup" className="btn-gold" style={{ flexShrink: 0 }}>Créer mon profil gratuit →</Link>
-        </div>
+        )}
 
         {/* LIST */}
         {loading ? (

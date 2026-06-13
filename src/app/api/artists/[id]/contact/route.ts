@@ -7,6 +7,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  // Only recruiters can reveal contact info
+  const { data: recruiter } = await supabase
+    .from("castly_recruiters")
+    .select("id")
+    .eq("user_id", user.id)
+    .single();
+  if (!recruiter) return NextResponse.json({ error: "Recruiter account required" }, { status: 403 });
+
   const { data } = await supabase
     .from("castly_profiles")
     .select("contact_email, display_name")
