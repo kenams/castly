@@ -1,6 +1,6 @@
 "use client";
 export const dynamic = "force-dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -14,7 +14,7 @@ function ScoreBadge({ score }: { score: number }) {
 
 const BRIEF_STEPS = ["Projet", "Profil cherché", "Détails"];
 
-export default function RecruiterDashboard() {
+function RecruiterDashboardInner() {
   const searchParams = useSearchParams();
   const [toast, setToast] = useState("");
   const [recruiter, setRecruiter] = useState<CastlyRecruiter | null>(null);
@@ -466,4 +466,8 @@ export default function RecruiterDashboard() {
       </div>
     </main>
   );
+}
+
+export default function RecruiterDashboard() {
+  return <Suspense><RecruiterDashboardInner /></Suspense>;
 }

@@ -1,13 +1,13 @@
 "use client";
 export const dynamic = "force-dynamic";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 
 type Role = "artist" | "recruiter";
 
-export default function SignupPage() {
+function SignupInner() {
   const searchParams = useSearchParams();
   const [role, setRole] = useState<Role | null>(null);
 
@@ -128,5 +128,13 @@ export default function SignupPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupInner />
+    </Suspense>
   );
 }
