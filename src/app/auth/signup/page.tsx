@@ -1,14 +1,20 @@
 "use client";
 export const dynamic = "force-dynamic";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type Role = "artist" | "recruiter";
 
 export default function SignupPage() {
+  const searchParams = useSearchParams();
   const [role, setRole] = useState<Role | null>(null);
+
+  useEffect(() => {
+    const r = searchParams.get("role") as Role | null;
+    if (r === "artist" || r === "recruiter") setRole(r);
+  }, [searchParams]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -60,28 +66,24 @@ export default function SignupPage() {
   // Step 1: choose role
   if (!role) {
     return (
-      <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
-        <div style={{ width: "100%", maxWidth: 560 }}>
-          <Link href="/" className="nav-logo" style={{ display: "block", textAlign: "center", marginBottom: "2rem" }}>Castly</Link>
-          <h1 style={{ fontSize: "1.6rem", fontWeight: 900, textAlign: "center", marginBottom: "0.5rem" }}>Je suis…</h1>
-          <p style={{ color: "var(--text-muted)", textAlign: "center", marginBottom: "2rem", fontSize: "0.95rem" }}>Choisis ton profil pour une expérience adaptée</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-            <button onClick={() => setRole("artist")} className="card" style={{ cursor: "pointer", textAlign: "center", padding: "2rem 1.5rem", border: "1px solid var(--border)", background: "var(--bg-card)", transition: "all 0.15s" }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--gold-border)")}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border)")}>
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>🎭</div>
-              <h2 style={{ fontWeight: 800, marginBottom: "0.5rem" }}>Artiste</h2>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", lineHeight: 1.5 }}>
-                Acteur, chanteur, rappeur, danseur, mannequin… Je cherche des castings et des opportunités.
+      <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem", background: "var(--bg)" }}>
+        <div style={{ width: "100%", maxWidth: 580 }}>
+          <Link href="/" className="nav-logo" style={{ display: "block", textAlign: "center", marginBottom: "2.5rem", fontSize: "1.5rem" }}>Castly</Link>
+          <h1 style={{ fontSize: "1.7rem", fontWeight: 900, textAlign: "center", marginBottom: "0.5rem" }}>Je suis…</h1>
+          <p style={{ color: "var(--text-muted)", textAlign: "center", marginBottom: "2rem", fontSize: "0.95rem" }}>Choisis ton profil pour une expérience personnalisée</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem" }}>
+            <button onClick={() => setRole("artist")} className="path-card path-card-gold" style={{ cursor: "pointer", border: "none", textAlign: "left" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block", animation: "float 4s ease-in-out infinite" }}>🎤</div>
+              <h2 style={{ fontWeight: 800, fontSize: "1.05rem", marginBottom: "0.5rem" }} className="text-gradient-gold">Artiste</h2>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", lineHeight: 1.6 }}>
+                Acteur, chanteur, rappeur, danseur, mannequin… Trouve des castings et des opportunités.
               </p>
             </button>
-            <button onClick={() => setRole("recruiter")} className="card" style={{ cursor: "pointer", textAlign: "center", padding: "2rem 1.5rem", border: "1px solid var(--border)", background: "var(--bg-card)", transition: "all 0.15s" }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--gold-border)")}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border)")}>
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>🎬</div>
-              <h2 style={{ fontWeight: 800, marginBottom: "0.5rem" }}>Recruteur</h2>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", lineHeight: 1.5 }}>
-                Agence, production, marque, label… Je cherche des talents pour mes projets.
+            <button onClick={() => setRole("recruiter")} className="path-card path-card-green" style={{ cursor: "pointer", border: "none", textAlign: "left" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block", animation: "float 4s 0.8s ease-in-out infinite" }}>🎬</div>
+              <h2 style={{ fontWeight: 800, fontSize: "1.05rem", marginBottom: "0.5rem" }} className="text-gradient-green">Recruteur</h2>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", lineHeight: 1.6 }}>
+                Agence, production, marque, label… Trouve les talents qu&apos;il te faut.
               </p>
             </button>
           </div>

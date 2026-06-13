@@ -260,3 +260,35 @@ select.input option { background: #1a1a2e; color: var(--text); }
 .icon-circle-gold { background: var(--gold-dim); border: 1px solid var(--gold-border); }
 .icon-circle-green { background: var(--green-dim); border: 1px solid var(--green-border); }
 .icon-circle-muted { background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
+
+/* ── RESPONSIVE ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+
+@media (max-width: 680px) {
+  .nav { padding: 0.85rem 1.1rem; }
+  .nav-logo { font-size: 1.15rem; }
+  .grid-2, .grid-4, .grid-split { grid-template-columns: 1fr; }
+  .path-card { padding: 1.75rem 1.25rem; }
+  .btn-gold, .btn-green, .btn-outline { font-size: 0.9rem; padding: 0.65rem 1.25rem; }
+  .casting-card { grid-template-columns: auto 1fr; }
+  .casting-card > *:last-child { display: none; }
+}
+
+@media (max-width: 900px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-split { gap: 2rem; }
+}
+
+/* ── SCROLL TO TOP ── */
+.scroll-top {
+  position: fixed; bottom: 2rem; right: 2rem;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; z-index: 40;
+  text-decoration: none;
+}
+.scroll-top:hover { border-color: var(--gold-border); color: var(--gold); transform: translateY(-2px); }

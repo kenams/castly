@@ -2,6 +2,7 @@
 export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { PROJECT_TYPE_LABELS, PROJECT_TYPE_ICONS, ARTIST_TYPE_LABELS, STYLE_TAG_SUGGESTIONS } from "@/types";
 import type { CastlyRecruiter, CastlyBrief, CastlyBriefMatch, CastlyProfile, ArtistType, ProjectType } from "@/types";
@@ -14,6 +15,8 @@ function ScoreBadge({ score }: { score: number }) {
 const BRIEF_STEPS = ["Projet", "Profil cherché", "Détails"];
 
 export default function RecruiterDashboard() {
+  const searchParams = useSearchParams();
+  const [toast, setToast] = useState("");
   const [recruiter, setRecruiter] = useState<CastlyRecruiter | null>(null);
   const [briefs, setBriefs] = useState<CastlyBrief[]>([]);
   const [activeBrief, setActiveBrief] = useState<CastlyBrief | null>(null);
@@ -41,6 +44,13 @@ export default function RecruiterDashboard() {
     deadline_at: "",
     description: "",
   });
+
+  useEffect(() => {
+    if (searchParams.get("credits") === "ok") {
+      setToast("✓ Crédits ajoutés à votre compte !");
+      setTimeout(() => setToast(""), 5000);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -151,6 +161,11 @@ export default function RecruiterDashboard() {
 
   return (
     <main style={{ minHeight: "100vh" }}>
+      {toast && (
+        <div style={{ position: "fixed", bottom: "1.5rem", left: "50%", transform: "translateX(-50%)", background: "var(--green)", color: "#0a0a12", fontWeight: 700, padding: "0.75rem 1.5rem", borderRadius: "999px", zIndex: 9999, fontSize: "0.9rem", boxShadow: "0 8px 24px rgba(56,199,147,0.4)", animation: "fadeUp 0.3s ease" }}>
+          {toast}
+        </div>
+      )}
       <nav className="nav">
         <Link href="/" className="nav-logo">Castly</Link>
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>

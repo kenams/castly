@@ -29,12 +29,16 @@ const STEPS_RECRUITER = [
 ];
 
 function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const [val, setVal] = useState(0);
+  const [val, setVal] = useState(target);
+  const [animated, setAnimated] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    if (animated) return;
     const obs = new IntersectionObserver(([e]) => {
       if (!e.isIntersecting) return;
       obs.disconnect();
+      setAnimated(true);
+      setVal(0);
       let start = 0;
       const step = Math.ceil(target / 40);
       const t = setInterval(() => {
@@ -42,10 +46,10 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
         setVal(start);
         if (start >= target) clearInterval(t);
       }, 30);
-    }, { threshold: 0.5 });
+    }, { threshold: 0.3 });
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
-  }, [target]);
+  }, [target, animated]);
   return <span ref={ref}>{val}{suffix}</span>;
 }
 
@@ -104,7 +108,7 @@ export default function HomePage() {
         </p>
 
         {/* DUAL PATH CARDS */}
-        <div className="animate-fade-up-4" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem", maxWidth: 760, margin: "0 auto" }}>
+        <div className="animate-fade-up-4 grid-2" style={{ maxWidth: 760, margin: "0 auto" }}>
           <Link href="/auth/signup?role=artist" className="path-card path-card-gold" style={{ textAlign: "left" }}>
             <div style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block", animation: "float 4s ease-in-out infinite" }}>🎤</div>
             <p style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.5rem" }}>
@@ -135,7 +139,7 @@ export default function HomePage() {
 
       {/* STATS */}
       <section style={{ borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", background: "var(--bg-2)" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 2rem", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", textAlign: "center" }}>
+        <div className="grid-4" style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 2rem", textAlign: "center" }}>
           {[
             { val: 33, suffix: "+", label: "castings ouverts", color: "var(--gold)" },
             { val: 100, suffix: "%", label: "matching IA", color: "var(--green)" },
@@ -207,7 +211,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem" }}>
+        <div className="grid-4">
           {steps.map((s, i) => (
             <div key={s.title} className="card card-hover animate-fade-up" style={{ animationDelay: `${i * 0.1}s`, display: "grid", gap: "0.75rem", textAlign: "center" }}>
               <div style={{ display: "flex", justifyContent: "center" }}>
@@ -227,7 +231,7 @@ export default function HomePage() {
 
       {/* FEATURES SPLIT */}
       <section style={{ borderTop: "1px solid var(--border)", background: "var(--bg-2)" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", padding: "5rem 2rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
+        <div className="grid-split" style={{ maxWidth: 900, margin: "0 auto", padding: "5rem 2rem" }}>
           <div>
             <span className="pill" style={{ marginBottom: "1rem", display: "inline-flex", fontSize: "0.78rem" }}>🎤 Pour les artistes</span>
             <h2 style={{ fontSize: "1.7rem", fontWeight: 900, lineHeight: 1.25, marginBottom: "0.75rem" }}>
@@ -270,7 +274,7 @@ export default function HomePage() {
       </section>
 
       <section style={{ borderTop: "1px solid var(--border)" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", padding: "5rem 2rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
+        <div className="grid-split" style={{ maxWidth: 900, margin: "0 auto", padding: "5rem 2rem" }}>
           <div style={{ display: "grid", gap: "0.75rem" }}>
             {[
               { icon: "📝", title: "Brief en 3 étapes", desc: "Décris ton projet, le profil et les critères physiques." },
@@ -301,7 +305,7 @@ export default function HomePage() {
 
       {/* PARTENAIRES */}
       <section style={{ background: "var(--bg-2)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", padding: "4rem 2rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center" }}>
+        <div className="grid-split" style={{ maxWidth: 900, margin: "0 auto", padding: "4rem 2rem" }}>
           <div>
             <span className="pill" style={{ marginBottom: "1rem", display: "inline-flex", fontSize: "0.78rem" }}>★ Partenaires Castly</span>
             <h2 style={{ fontSize: "1.6rem", fontWeight: 900, marginBottom: "0.75rem" }}>Vous proposez des castings ?</h2>
