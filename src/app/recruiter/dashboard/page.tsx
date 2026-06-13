@@ -49,7 +49,7 @@ export default function RecruiterDashboard() {
       const { data: { user } } = await supabase!.auth.getUser();
       if (!user) { window.location.href = "/auth/login"; return; }
 
-      const { data: rec } = await supabase!.from("castly_recruiters").select("*").eq("user_id", user.id).single();
+      const { data: rec } = await supabase!.from("castly_recruiters").select("*, credits").eq("user_id", user.id).single();
       if (!rec) { window.location.href = "/recruiter/onboarding"; return; }
       setRecruiter(rec);
 
@@ -86,6 +86,11 @@ export default function RecruiterDashboard() {
     if (r.ok) {
       const d = await r.json();
       setRevealedContacts(prev => ({ ...prev, [profileId]: d.contact_email }));
+      if (d.credits_remaining !== undefined) {
+        setRecruiter(prev => prev ? { ...prev, credits: d.credits_remaining } as never : prev);
+      }
+    } else if (r.status === 402) {
+      window.location.href = "/credits";
     }
   }
 
@@ -150,6 +155,9 @@ export default function RecruiterDashboard() {
         <Link href="/" className="nav-logo">Castly</Link>
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
           <Link href="/artists" className="btn-outline" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>🔍 Parcourir les artistes</Link>
+          <Link href="/credits" style={{ fontSize: "0.8rem", color: recruiter && (recruiter as CastlyRecruiter & { credits?: number }).credits === 0 ? "var(--red)" : "var(--gold)", textDecoration: "none", border: "1px solid var(--border)", borderRadius: "999px", padding: "0.35rem 0.8rem", fontWeight: 600 }}>
+            💳 {(recruiter as CastlyRecruiter & { credits?: number })?.credits ?? 0} crédit{((recruiter as CastlyRecruiter & { credits?: number })?.credits ?? 0) !== 1 ? "s" : ""}
+          </Link>
           <button onClick={handleLogout} style={{ padding: "0.45rem 1rem", fontSize: "0.82rem", borderRadius: "999px", border: "1px solid var(--border)", background: "transparent", color: "var(--text-muted)", cursor: "pointer" }}>
             Déconnexion
           </button>

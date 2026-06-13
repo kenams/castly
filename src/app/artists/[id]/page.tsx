@@ -15,6 +15,8 @@ export default function ArtistProfilePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [contactRevealed, setContactRevealed] = useState(false);
   const [contactLoading, setContactLoading] = useState(false);
+  const [credits, setCredits] = useState<number | null>(null);
+  const [noCredits, setNoCredits] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -23,18 +25,26 @@ export default function ArtistProfilePage() {
       .then(d => { setArtist(d?.artist ?? null); setLoading(false); });
 
     const supabase = createClient();
-    void supabase.auth.getUser().then((result: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
-      setIsLoggedIn(!!result.data.user);
+    void supabase.auth.getUser().then(async ({ data: { user } }) => {
+      setIsLoggedIn(!!user);
+      if (user) {
+        const { data } = await supabase.from("castly_recruiters").select("credits").eq("user_id", user.id).single();
+        if (data) setCredits(data.credits);
+      }
     });
   }, [id]);
 
   const revealContact = async () => {
     setContactLoading(true);
+    setNoCredits(false);
     const r = await fetch(`/api/artists/${id}/contact`);
     if (r.ok) {
       const d = await r.json();
       setContactEmail(d.contact_email);
       setContactRevealed(true);
+      if (d.credits_remaining !== undefined) setCredits(d.credits_remaining);
+    } else if (r.status === 402) {
+      setNoCredits(true);
     }
     setContactLoading(false);
   };
@@ -49,14 +59,21 @@ export default function ArtistProfilePage() {
         <div style={{ display: "flex", gap: "0.75rem" }}>
           <Link href="/artists" className="btn-outline" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>← Artistes</Link>
           {isLoggedIn ? (
-            <button
-              className="btn-gold"
-              style={{ padding: "0.45rem 1rem", fontSize: "0.82rem", cursor: "pointer" }}
-              onClick={revealContact}
-              disabled={contactLoading || contactRevealed}
-            >
-              {contactRevealed ? "✓ Contact révélé" : contactLoading ? "…" : "Contacter cet artiste"}
-            </button>
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+              {credits !== null && (
+                <Link href="/credits" style={{ fontSize: "0.75rem", color: "var(--text-muted)", textDecoration: "none", border: "1px solid var(--border)", borderRadius: "999px", padding: "0.3rem 0.7rem" }}>
+                  💳 {credits} crédit{credits !== 1 ? "s" : ""}
+                </Link>
+              )}
+              <button
+                className="btn-gold"
+                style={{ padding: "0.45rem 1rem", fontSize: "0.82rem", cursor: "pointer" }}
+                onClick={revealContact}
+                disabled={contactLoading || contactRevealed}
+              >
+                {contactRevealed ? "✓ Contact révélé" : contactLoading ? "…" : "Contacter (1 crédit)"}
+              </button>
+            </div>
           ) : (
             <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Contacter cet artiste</Link>
           )}
@@ -181,13 +198,23 @@ export default function ArtistProfilePage() {
                 <Link href="/auth/signup" className="btn-gold">Créer un compte recruteur →</Link>
               </div>
             )}
-            {isLoggedIn && !contactRevealed && (
+            {isLoggedIn && !contactRevealed && !noCredits && (
               <div className="card" style={{ background: "linear-gradient(135deg,rgba(232,184,109,0.07),rgba(56,199,147,0.04))", borderColor: "var(--gold-border)", textAlign: "center", padding: "2rem" }}>
                 <p style={{ fontWeight: 700, marginBottom: "0.5rem" }}>Prêt à contacter {artist.display_name} ?</p>
-                <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>Révélez l&apos;adresse email pour démarrer la conversation directement.</p>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
+                  1 crédit sera débité. Contact accessible à vie après révélation.
+                  {credits !== null && <> — Solde : <strong style={{ color: "var(--gold)" }}>{credits} crédit{credits !== 1 ? "s" : ""}</strong></>}
+                </p>
                 <button className="btn-gold" onClick={revealContact} disabled={contactLoading} style={{ cursor: "pointer" }}>
-                  {contactLoading ? "Chargement…" : "📧 Révéler le contact"}
+                  {contactLoading ? "Chargement…" : "📧 Révéler le contact (1 crédit)"}
                 </button>
+              </div>
+            )}
+            {noCredits && (
+              <div className="card" style={{ borderColor: "rgba(255,80,80,0.3)", textAlign: "center", padding: "2rem" }}>
+                <p style={{ fontWeight: 700, marginBottom: "0.5rem" }}>Plus de crédits</p>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>Rechargez votre compte pour contacter {artist.display_name}.</p>
+                <Link href="/credits" className="btn-gold">Acheter des crédits →</Link>
               </div>
             )}
           </div>
