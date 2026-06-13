@@ -1,5 +1,4 @@
 "use client";
-export const dynamic = "force-dynamic";
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -114,7 +113,7 @@ export default function DashboardPage() {
             { v: matches.length, l: "castings analysés", icon: "🎬" },
             { v: newCount, l: "nouveaux matches", icon: "⚡" },
             { v: savedCount, l: "sauvegardés", icon: "★" },
-            { v: `${topScore}%`, l: "meilleur score", icon: "🎯" },
+            { v: `${topScore}/100`, l: "meilleur score", icon: "🎯" },
           ].map(s => (
             <div key={s.l} className="card" style={{ display: "flex", alignItems: "center", gap: "0.85rem", padding: "1rem 1.25rem" }}>
               <span style={{ fontSize: "1.3rem" }}>{s.icon}</span>
@@ -126,7 +125,29 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* PROFIL CHIPS + ACTION */}
+        {/* PROFIL CHIPS + COMPLÉTION + ACTION */}
+        {(() => {
+          const fields = [profile?.bio, profile?.city, profile?.artist_type?.length, profile?.skills?.length, profile?.social_links && Object.keys(profile.social_links).length > 0];
+          const done = fields.filter(Boolean).length;
+          const pct = Math.round((done / fields.length) * 100);
+          return pct < 100 ? (
+            <div className="card" style={{ marginBottom: "1.25rem", padding: "1rem 1.25rem", background: "linear-gradient(135deg,rgba(232,184,109,0.06),rgba(56,199,147,0.03))", borderColor: "var(--gold-border)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                <p style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--text-muted)" }}>Complétion du profil</p>
+                <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--gold)" }}>{pct}%</span>
+              </div>
+              <div className="progress-bar" style={{ marginBottom: "0.6rem" }}>
+                <div className="progress-fill" style={{ width: `${pct}%` }} />
+              </div>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                {!profile?.bio && <Link href="/onboarding" style={{ fontSize: "0.75rem", color: "var(--gold)", textDecoration: "none", borderBottom: "1px solid var(--gold-border)" }}>+ Bio</Link>}
+                {!profile?.city && <Link href="/onboarding" style={{ fontSize: "0.75rem", color: "var(--gold)", textDecoration: "none", borderBottom: "1px solid var(--gold-border)" }}>+ Ville</Link>}
+                {(!profile?.skills?.length) && <Link href="/onboarding" style={{ fontSize: "0.75rem", color: "var(--gold)", textDecoration: "none", borderBottom: "1px solid var(--gold-border)" }}>+ Compétences</Link>}
+                {!(profile?.social_links && Object.keys(profile.social_links).length > 0) && <Link href="/onboarding" style={{ fontSize: "0.75rem", color: "var(--gold)", textDecoration: "none", borderBottom: "1px solid var(--gold-border)" }}>+ Réseaux</Link>}
+              </div>
+            </div>
+          ) : null;
+        })()}
         <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", marginBottom: "1.5rem", alignItems: "center" }}>
           {profile?.artist_type.map(t => (
             <span key={t} className="pill">{ARTIST_TYPE_LABELS[t]}</span>

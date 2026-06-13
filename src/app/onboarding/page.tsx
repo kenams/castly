@@ -1,5 +1,4 @@
 "use client";
-export const dynamic = "force-dynamic";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -93,8 +92,8 @@ export default function OnboardingPage() {
       is_visible: form.is_visible,
       is_complete: true,
       contact_email: user.email,
-    });
-    if (upsertErr) { setError(upsertErr.message); setSaving(false); return; }
+    }, { onConflict: "user_id" });
+    if (upsertErr) { setError("Erreur lors de la sauvegarde. Réessaie."); setSaving(false); return; }
     await fetch("/api/match", { method: "POST" });
     router.push("/dashboard");
   }
@@ -267,7 +266,14 @@ export default function OnboardingPage() {
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2rem", gap: "1rem" }}>
             {step > 0 ? <button className="btn-outline" onClick={() => setStep(s => s - 1)}>← Retour</button> : <span />}
             {step < STEPS.length - 1
-              ? <button className="btn-gold" onClick={() => setStep(s => s + 1)}>Suivant →</button>
+              ? <button className="btn-gold" onClick={() => {
+                  if (step === 0) {
+                    if (!form.display_name.trim()) { setError("Entre ton nom de scène."); return; }
+                    if (form.artist_type.length === 0) { setError("Choisis au moins un type artistique."); return; }
+                  }
+                  setError("");
+                  setStep(s => s + 1);
+                }}>Suivant →</button>
               : <button className="btn-gold" onClick={handleFinish} disabled={saving}>
                   {saving ? "⚡ Analyse IA…" : "Voir mes castings →"}
                 </button>}

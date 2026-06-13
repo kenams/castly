@@ -1,5 +1,4 @@
 "use client";
-export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -29,8 +28,24 @@ export default function ArtistProfilePage() {
       const user = result.data.user;
       setIsLoggedIn(!!user);
       if (user) {
-        const { data } = await supabase.from("castly_recruiters").select("credits").eq("user_id", user.id).single();
-        if (data) setCredits((data as { credits: number }).credits);
+        const { data: rec } = await supabase.from("castly_recruiters").select("id, credits").eq("user_id", user.id).single();
+        if (rec) {
+          setCredits((rec as { id: string; credits: number }).credits);
+          const { data: reveal } = await supabase
+            .from("castly_contact_reveals")
+            .select("id")
+            .eq("recruiter_id", (rec as { id: string }).id)
+            .eq("profile_id", id)
+            .maybeSingle();
+          if (reveal) {
+            const r = await fetch(`/api/artists/${id}/contact`);
+            if (r.ok) {
+              const d = await r.json();
+              setContactEmail(d.contact_email);
+              setContactRevealed(true);
+            }
+          }
+        }
       }
     });
   }, [id]);

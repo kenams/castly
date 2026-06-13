@@ -1,5 +1,4 @@
 "use client";
-export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -121,14 +120,16 @@ export default function CastingDetailPage() {
                 ) : (
                   <>
                     <p style={{ fontWeight: 700, marginBottom: "0.5rem", fontSize: "1.1rem" }}>Tu es connecté ✓</p>
-                    <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>Lance le matching IA depuis ton dashboard pour voir ton score.</p>
+                    <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>Lance le matching IA depuis ton dashboard pour voir ton score et être visible par ce recruteur.</p>
                   </>
                 )}
                 <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                  {casting.source_url && (
+                  {casting.source_url ? (
                     <a href={casting.source_url} target="_blank" rel="noreferrer" className="btn-gold">Postuler maintenant ↗</a>
+                  ) : (
+                    <Link href="/dashboard" className="btn-gold">Voir dans mon dashboard →</Link>
                   )}
-                  <Link href="/dashboard" className="btn-outline">Mon dashboard →</Link>
+                  {casting.source_url && <Link href="/dashboard" className="btn-outline">Mon dashboard →</Link>}
                 </div>
               </div>
             ) : (
