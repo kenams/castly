@@ -25,11 +25,12 @@ export default function ArtistProfilePage() {
       .then(d => { setArtist(d?.artist ?? null); setLoading(false); });
 
     const supabase = createClient();
-    void supabase.auth.getUser().then(async ({ data: { user } }) => {
+    void supabase.auth.getUser().then(async (result: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
+      const user = result.data.user;
       setIsLoggedIn(!!user);
       if (user) {
         const { data } = await supabase.from("castly_recruiters").select("credits").eq("user_id", user.id).single();
-        if (data) setCredits(data.credits);
+        if (data) setCredits((data as { credits: number }).credits);
       }
     });
   }, [id]);
