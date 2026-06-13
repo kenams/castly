@@ -16,7 +16,7 @@ const ARTIST_TYPES = [
 
 const STEPS_ARTIST = [
   { icon: "✍️", title: "Crée ton profil", desc: "5 min. Type, style, expérience, mensurations." },
-  { icon: "⚡", title: "L'IA scanne les castings", desc: "Matching automatique sur 33+ offres en temps réel." },
+  { icon: "⚡", title: "L'IA scanne les castings", desc: "Matching automatique sur des dizaines d'offres en temps réel." },
   { icon: "🎯", title: "Ton score de compatibilité", desc: "Chaque casting reçoit un score 0-100 taillé pour toi." },
   { icon: "📧", title: "Postule en 1 clic", desc: "Accède directement aux contacts et à l'offre originale." },
 ];
@@ -36,17 +36,15 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
     if (animated) return;
     const obs = new IntersectionObserver(([e]) => {
       if (!e.isIntersecting) return;
-      obs.disconnect();
-      setAnimated(true);
-      setVal(0);
+      obs.disconnect(); setAnimated(true); setVal(0);
       let start = 0;
       const step = Math.ceil(target / 40);
       const t = setInterval(() => {
         start = Math.min(start + step, target);
         setVal(start);
         if (start >= target) clearInterval(t);
-      }, 30);
-    }, { threshold: 0.3 });
+      }, 28);
+    }, { threshold: 0.4 });
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, [target, animated]);
@@ -58,10 +56,7 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<"artist" | "recruiter">("artist");
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then((result: Awaited<ReturnType<typeof supabase.auth.getUser>>) =>
-      setIsLoggedIn(!!result.data.user)
-    );
+    createClient().auth.getUser().then((r: Awaited<ReturnType<ReturnType<typeof createClient>["auth"]["getUser"]>>) => setIsLoggedIn(!!r.data.user));
   }, []);
 
   const steps = activeTab === "artist" ? STEPS_ARTIST : STEPS_RECRUITER;
@@ -72,104 +67,123 @@ export default function HomePage() {
       {/* NAV */}
       <nav className="nav">
         <Link href="/" className="nav-logo">Castly</Link>
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-          <Link href="/castings" style={{ color: "var(--text-muted)", fontSize: "0.88rem", textDecoration: "none", padding: "0.45rem 0.75rem" }}>Castings</Link>
-          <Link href="/artists" style={{ color: "var(--text-muted)", fontSize: "0.88rem", textDecoration: "none", padding: "0.45rem 0.75rem" }}>Artistes</Link>
+        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+          <Link href="/castings" style={{ color: "var(--text-muted)", fontSize: "0.85rem", textDecoration: "none", padding: "0.4rem 0.7rem", transition: "color 0.15s" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--text)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}>
+            Castings
+          </Link>
+          <Link href="/artists" style={{ color: "var(--text-muted)", fontSize: "0.85rem", textDecoration: "none", padding: "0.4rem 0.7rem", transition: "color 0.15s" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--text)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}>
+            Artistes
+          </Link>
           {isLoggedIn ? (
-            <Link href="/dashboard" className="btn-gold" style={{ padding: "0.5rem 1.2rem", fontSize: "0.85rem" }}>Mon dashboard →</Link>
+            <Link href="/dashboard" className="btn-gold" style={{ padding: "0.5rem 1.2rem", fontSize: "0.83rem" }}>Dashboard →</Link>
           ) : (
             <>
-              <Link href="/auth/login" className="btn-outline" style={{ padding: "0.5rem 1.2rem", fontSize: "0.85rem" }}>Connexion</Link>
-              <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.5rem 1.2rem", fontSize: "0.85rem" }}>Commencer</Link>
+              <Link href="/auth/login" className="btn-outline" style={{ padding: "0.48rem 1.1rem", fontSize: "0.83rem" }}>Connexion</Link>
+              <Link href="/auth/signup" className="btn-gold" style={{ padding: "0.48rem 1.2rem", fontSize: "0.83rem" }}>Commencer</Link>
             </>
           )}
         </div>
       </nav>
 
       {/* HERO */}
-      <section style={{ position: "relative", maxWidth: 1000, margin: "0 auto", padding: "5rem 2rem 4rem", textAlign: "center", overflow: "hidden" }}>
+      <section style={{ position: "relative", maxWidth: 1040, margin: "0 auto", padding: "5.5rem 2rem 4.5rem", textAlign: "center", overflow: "hidden" }}>
         {/* Orbs */}
-        <div className="orb" style={{ width: 500, height: 500, background: "rgba(232,184,109,0.06)", top: -200, left: "50%", marginLeft: -250, animationDelay: "0s" }} />
-        <div className="orb" style={{ width: 300, height: 300, background: "rgba(56,199,147,0.05)", top: 100, right: -100, animationDelay: "-4s" }} />
+        <div className="orb" style={{ width: 600, height: 600, background: "rgba(232,184,109,0.055)", top: -280, left: "50%", marginLeft: -300 }} />
+        <div className="orb" style={{ width: 320, height: 320, background: "rgba(56,199,147,0.045)", top: 80, right: -80, animationDelay: "-6s" }} />
+        <div className="orb" style={{ width: 240, height: 240, background: "rgba(232,184,109,0.04)", bottom: -60, left: -60, animationDelay: "-10s" }} />
 
-        <div className="animate-fade-up">
-          <span className="pill" style={{ marginBottom: "1.5rem", fontSize: "0.8rem", display: "inline-flex" }}>
-            ✨ IA de casting — France
+        <div className="animate-fade-up" style={{ marginBottom: "1.75rem" }}>
+          <span className="pill" style={{ fontSize: "0.75rem" }}>
+            ✨ Matching IA — Artistes & Recruteurs
           </span>
         </div>
 
-        <h1 className="animate-fade-up-2" style={{ fontSize: "clamp(2.6rem,7vw,4.5rem)", fontWeight: 900, lineHeight: 1.05, letterSpacing: "-0.05em", marginBottom: "1.5rem" }}>
+        <h1 className="animate-fade-up-2" style={{
+          fontSize: "clamp(2.8rem,7.5vw,5rem)", fontWeight: 900,
+          lineHeight: 1.02, letterSpacing: "-0.055em", marginBottom: "1.5rem",
+        }}>
           Tes prochains castings,<br />
           <span className="text-gradient-gold">matchés par l&apos;IA</span>
         </h1>
 
-        <p className="animate-fade-up-3" style={{ fontSize: "1.1rem", color: "var(--text-muted)", maxWidth: 520, margin: "0 auto 3rem", lineHeight: 1.7 }}>
-          Artiste ou recruteur, l&apos;IA analyse chaque opportunité et te donne un score de compatibilité instantané.
+        <p className="animate-fade-up-3" style={{
+          fontSize: "1.08rem", color: "var(--text-muted)", maxWidth: 500,
+          margin: "0 auto 3.5rem", lineHeight: 1.75,
+        }}>
+          Artiste ou recruteur — l&apos;IA analyse chaque opportunité et te donne
+          un score de compatibilité instantané.
         </p>
 
-        {/* DUAL PATH CARDS */}
-        <div className="animate-fade-up-4 grid-2" style={{ maxWidth: 760, margin: "0 auto" }}>
+        {/* DUAL PATH */}
+        <div className="animate-fade-up-4 grid-2" style={{ maxWidth: 780, margin: "0 auto" }}>
           <Link href="/auth/signup?role=artist" className="path-card path-card-gold" style={{ textAlign: "left" }}>
-            <div style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block", animation: "float 4s ease-in-out infinite" }}>🎤</div>
-            <p style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.5rem" }}>
+            <div style={{ fontSize: "2.2rem", marginBottom: "1.1rem", display: "block", animation: "float 5s ease-in-out infinite" }}>🎤</div>
+            <p style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
               Je suis <span className="text-gradient-gold">artiste</span>
             </p>
-            <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", lineHeight: 1.6, marginBottom: "1.25rem" }}>
+            <p style={{ fontSize: "0.87rem", color: "var(--text-muted)", lineHeight: 1.65, marginBottom: "1.5rem" }}>
               Acteur, rappeur, danseur, mannequin… Crée ton profil et l&apos;IA te trouve les castings qui collent à ton style.
             </p>
-            <span className="btn-gold" style={{ fontSize: "0.85rem", padding: "0.6rem 1.25rem" }}>
+            <span className="btn-gold" style={{ fontSize: "0.82rem", padding: "0.55rem 1.2rem" }}>
               Créer mon profil →
             </span>
           </Link>
 
           <Link href="/auth/signup?role=recruiter" className="path-card path-card-green" style={{ textAlign: "left" }}>
-            <div style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block", animation: "float 4s 0.8s ease-in-out infinite" }}>🎬</div>
-            <p style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.5rem" }}>
+            <div style={{ fontSize: "2.2rem", marginBottom: "1.1rem", display: "block", animation: "float 5s 1s ease-in-out infinite" }}>🎬</div>
+            <p style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: "0.5rem", letterSpacing: "-0.02em" }}>
               Je <span className="text-gradient-green">recrute</span>
             </p>
-            <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", lineHeight: 1.6, marginBottom: "1.25rem" }}>
+            <p style={{ fontSize: "0.87rem", color: "var(--text-muted)", lineHeight: 1.65, marginBottom: "1.5rem" }}>
               Producteur, agence, label, brand… Poste un brief et l&apos;IA te sort les profils compatibles en secondes.
             </p>
-            <span className="btn-green" style={{ fontSize: "0.85rem", padding: "0.6rem 1.25rem" }}>
+            <span className="btn-green" style={{ fontSize: "0.82rem", padding: "0.55rem 1.2rem" }}>
               Trouver des artistes →
             </span>
           </Link>
         </div>
+
+        {/* SOCIAL PROOF INLINE */}
+        <p style={{ marginTop: "2rem", fontSize: "0.8rem", color: "var(--text-faint)" }}>
+          3 crédits offerts à l&apos;inscription · Profil en 5 min · Sans CB
+        </p>
       </section>
 
-      {/* STATS */}
+      {/* STATS BAR */}
       <section style={{ borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", background: "var(--bg-2)" }}>
-        <div className="grid-4" style={{ maxWidth: 900, margin: "0 auto", padding: "2rem 2rem", textAlign: "center" }}>
+        <div className="grid-4" style={{ maxWidth: 860, margin: "0 auto", padding: "1.75rem 2rem", textAlign: "center" }}>
           {[
             { val: 33, suffix: "+", label: "castings ouverts", color: "var(--gold)" },
             { val: 100, suffix: "%", label: "matching IA", color: "var(--green)" },
             { val: 3, suffix: " crédits", label: "offerts à l'inscription", color: "var(--gold)" },
-            { val: 6, suffix: " types", label: "d'artistes supportés", color: "var(--green)" },
+            { val: 8, suffix: " types", label: "d'artistes supportés", color: "var(--green)" },
           ].map(s => (
             <div key={s.label}>
-              <div style={{ fontSize: "2rem", fontWeight: 900, color: s.color, animation: "count-up 0.6s ease both" }}>
+              <div style={{ fontSize: "1.9rem", fontWeight: 900, color: s.color, letterSpacing: "-0.04em", lineHeight: 1 }}>
                 <Counter target={s.val} suffix={s.suffix} />
               </div>
-              <div style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>{s.label}</div>
+              <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>{s.label}</div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* TYPES TICKER */}
-      <section style={{ padding: "2.5rem 0", borderBottom: "1px solid var(--border)", overflow: "hidden" }}>
+      {/* TICKER */}
+      <section style={{ padding: "2rem 0", borderBottom: "1px solid var(--border)", overflow: "hidden" }}>
         <div className="ticker-wrap">
           <div className="ticker-track">
             {[...ARTIST_TYPES, ...ARTIST_TYPES].map((t, i) => (
               <div key={i} style={{
-                display: "inline-flex", alignItems: "center", gap: "0.5rem",
-                marginRight: "2.5rem",
-                padding: "0.5rem 1.2rem",
-                borderRadius: "999px",
+                display: "inline-flex", alignItems: "center", gap: "0.45rem",
+                marginRight: "2rem", padding: "0.45rem 1.1rem", borderRadius: "999px",
                 border: `1px solid ${t.color === "gold" ? "var(--gold-border)" : "var(--green-border)"}`,
                 background: t.color === "gold" ? "var(--gold-dim)" : "var(--green-dim)",
                 color: t.color === "gold" ? "var(--gold)" : "var(--green)",
-                fontSize: "0.88rem", fontWeight: 600, whiteSpace: "nowrap",
+                fontSize: "0.83rem", fontWeight: 600, whiteSpace: "nowrap",
               }}>
                 <span>{t.icon}</span> {t.label}
               </div>
@@ -178,124 +192,116 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* COMMENT ÇA MARCHE — onglets */}
-      <section style={{ maxWidth: 900, margin: "0 auto", padding: "5rem 2rem" }}>
-        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-          <h2 style={{ fontSize: "1.9rem", fontWeight: 900, marginBottom: "1.25rem" }}>Comment ça marche</h2>
-          {/* Tab switcher */}
-          <div style={{ display: "inline-flex", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "999px", padding: "4px", gap: "4px" }}>
-            <button
-              onClick={() => setActiveTab("artist")}
-              style={{
-                padding: "0.5rem 1.4rem", borderRadius: "999px", border: "none", cursor: "pointer",
-                fontWeight: 700, fontSize: "0.88rem",
-                background: activeTab === "artist" ? "linear-gradient(135deg, #e8b86d, #d4a050)" : "transparent",
-                color: activeTab === "artist" ? "#0a0a12" : "var(--text-muted)",
-                transition: "all 0.2s",
-              }}
-            >
-              🎤 Artiste
-            </button>
-            <button
-              onClick={() => setActiveTab("recruiter")}
-              style={{
-                padding: "0.5rem 1.4rem", borderRadius: "999px", border: "none", cursor: "pointer",
-                fontWeight: 700, fontSize: "0.88rem",
-                background: activeTab === "recruiter" ? "linear-gradient(135deg, #38c793, #2aab7e)" : "transparent",
-                color: activeTab === "recruiter" ? "#0a0a12" : "var(--text-muted)",
-                transition: "all 0.2s",
-              }}
-            >
-              🎬 Recruteur
-            </button>
+      {/* COMMENT ÇA MARCHE */}
+      <section style={{ maxWidth: 920, margin: "0 auto", padding: "5.5rem 2rem" }}>
+        <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
+          <span className="pill-muted pill" style={{ fontSize: "0.72rem", marginBottom: "1rem", display: "inline-flex" }}>Guide</span>
+          <h2 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: "-0.04em", marginBottom: "1.5rem" }}>Comment ça marche</h2>
+          <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", borderRadius: "999px", padding: "4px", gap: "3px" }}>
+            {(["artist", "recruiter"] as const).map(tab => (
+              <button key={tab} onClick={() => setActiveTab(tab)} style={{
+                padding: "0.48rem 1.3rem", borderRadius: "999px", border: "none", cursor: "pointer",
+                fontWeight: 700, fontSize: "0.83rem", transition: "all 0.2s",
+                background: activeTab === tab
+                  ? tab === "artist" ? "linear-gradient(135deg,#e8b86d,#d4a050)" : "linear-gradient(135deg,#38c793,#2aab7e)"
+                  : "transparent",
+                color: activeTab === tab ? "#07070f" : "var(--text-muted)",
+              }}>
+                {tab === "artist" ? "🎤 Artiste" : "🎬 Recruteur"}
+              </button>
+            ))}
           </div>
         </div>
 
         <div className="grid-4">
           {steps.map((s, i) => (
-            <div key={s.title} className="card card-hover animate-fade-up" style={{ animationDelay: `${i * 0.1}s`, display: "grid", gap: "0.75rem", textAlign: "center" }}>
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <div className={`icon-circle ${activeTab === "artist" ? "icon-circle-gold" : "icon-circle-green"}`} style={{ fontSize: "1.6rem" }}>
+            <div key={s.title} className="card card-hover animate-fade-up" style={{ animationDelay: `${i * 0.08}s`, textAlign: "center", padding: "1.75rem 1.25rem" }}>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+                <div className={`icon-circle ${activeTab === "artist" ? "icon-circle-gold" : "icon-circle-green"}`} style={{ fontSize: "1.5rem" }}>
                   {s.icon}
                 </div>
               </div>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: activeTab === "artist" ? "var(--gold-dim)" : "var(--green-dim)", border: `1px solid ${activeTab === "artist" ? "var(--gold-border)" : "var(--green-border)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, color: activeTab === "artist" ? "var(--gold)" : "var(--green)", fontSize: "0.8rem", margin: "0 auto" }}>
-                {i + 1}
-              </div>
-              <h3 style={{ fontWeight: 700, fontSize: "0.95rem" }}>{s.title}</h3>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", lineHeight: 1.6 }}>{s.desc}</p>
+              <div style={{
+                width: 24, height: 24, borderRadius: "50%",
+                background: activeTab === "artist" ? "var(--gold-dim)" : "var(--green-dim)",
+                border: `1px solid ${activeTab === "artist" ? "var(--gold-border)" : "var(--green-border)"}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontWeight: 800, color: activeTab === "artist" ? "var(--gold)" : "var(--green)",
+                fontSize: "0.72rem", margin: "0 auto 0.85rem",
+              }}>{i + 1}</div>
+              <h3 style={{ fontWeight: 700, fontSize: "0.92rem", marginBottom: "0.4rem", letterSpacing: "-0.01em" }}>{s.title}</h3>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", lineHeight: 1.65 }}>{s.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* FEATURES SPLIT */}
+      {/* FEATURES SPLIT — Artiste */}
       <section style={{ borderTop: "1px solid var(--border)", background: "var(--bg-2)" }}>
-        <div className="grid-split" style={{ maxWidth: 900, margin: "0 auto", padding: "5rem 2rem" }}>
+        <div className="grid-split" style={{ maxWidth: 920, margin: "0 auto", padding: "5.5rem 2rem" }}>
           <div>
-            <span className="pill" style={{ marginBottom: "1rem", display: "inline-flex", fontSize: "0.78rem" }}>🎤 Pour les artistes</span>
-            <h2 style={{ fontSize: "1.7rem", fontWeight: 900, lineHeight: 1.25, marginBottom: "0.75rem" }}>
+            <span className="pill" style={{ marginBottom: "1.25rem", display: "inline-flex", fontSize: "0.72rem" }}>🎤 Pour les artistes</span>
+            <h2 style={{ fontSize: "1.75rem", fontWeight: 900, lineHeight: 1.2, letterSpacing: "-0.04em", marginBottom: "0.85rem" }}>
               Fini de chercher,<br /><span className="text-gradient-gold">l&apos;IA travaille pour toi</span>
             </h2>
-            <p style={{ color: "var(--text-muted)", lineHeight: 1.7, marginBottom: "1.75rem" }}>
-              Crée ton profil une fois. L&apos;IA scrute en continu les castings français et te donne ton score de compatibilité sur chaque offre. Tu vois directement pourquoi tu matches.
+            <p style={{ color: "var(--text-muted)", lineHeight: 1.75, marginBottom: "2rem", fontSize: "0.92rem" }}>
+              Crée ton profil une fois. L&apos;IA scrute en continu les castings et te donne ton score de compatibilité sur chaque offre. Tu vois directement pourquoi tu matches.
             </p>
-            <div style={{ display: "grid", gap: "0.75rem", marginBottom: "2rem" }}>
+            <div style={{ display: "grid", gap: "0.65rem", marginBottom: "2.25rem" }}>
               {["Score 0-100 sur chaque casting", "Raisons du match expliquées", "Filtres par type, ville, rémunération", "Accès direct à l'offre originale"].map(f => (
-                <div key={f} style={{ display: "flex", gap: "0.6rem", alignItems: "center", fontSize: "0.9rem" }}>
-                  <span style={{ color: "var(--gold)", fontWeight: 700 }}>✓</span>
-                  <span style={{ color: "var(--text-muted)" }}>{f}</span>
+                <div key={f} style={{ display: "flex", gap: "0.6rem", alignItems: "center", fontSize: "0.87rem" }}>
+                  <span style={{ color: "var(--gold)", fontWeight: 800, fontSize: "0.8rem" }}>✓</span>
+                  <span style={{ color: "var(--text-2)" }}>{f}</span>
                 </div>
               ))}
             </div>
             <Link href="/auth/signup?role=artist" className="btn-gold">Créer mon profil gratuit →</Link>
           </div>
-          <div style={{ display: "grid", gap: "0.75rem" }}>
+          <div style={{ display: "grid", gap: "0.65rem" }}>
             {[
               { score: 94, type: "🎤 Rappeur", title: "Rappeur trap pour clip officiel", loc: "Paris", days: "20j", paid: true },
               { score: 78, type: "🎤 Chanteur", title: "Feat R&B artiste signé Universal", loc: "Paris", days: "14j", paid: true },
               { score: 61, type: "💃 Danseur", title: "Danseur hip-hop clip rappeur signé", loc: "Paris", days: "11j", paid: true },
-            ].map(c => (
-              <div key={c.title} className="card" style={{ display: "flex", gap: "1rem", alignItems: "center", padding: "1rem 1.25rem" }}>
-                <div className={`score-badge ${c.score >= 70 ? "score-high" : "score-mid"}`}>{c.score}</div>
+            ].map((c, i) => (
+              <div key={c.title} className="card" style={{ display: "flex", gap: "0.9rem", alignItems: "center", padding: "1rem 1.2rem", animationDelay: `${i * 0.1}s` }}>
+                <div className={`score-badge ${c.score >= 70 ? "score-high" : "score-mid"}`} style={{ width: 44, height: 44, fontSize: "0.88rem" }}>{c.score}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontWeight: 700, fontSize: "0.88rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.title}</p>
-                  <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.25rem", fontSize: "0.78rem", color: "var(--text-muted)" }}>
-                    <span>{c.type}</span>
-                    <span>📍 {c.loc}</span>
-                    <span>{c.days}</span>
+                  <p style={{ fontWeight: 700, fontSize: "0.85rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: "0.2rem" }}>{c.title}</p>
+                  <div style={{ display: "flex", gap: "0.6rem", fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                    <span>{c.type}</span><span>📍 {c.loc}</span><span>{c.days}</span>
                   </div>
                 </div>
-                {c.paid && <span className="pill-green pill" style={{ fontSize: "0.7rem", flexShrink: 0 }}>Rémunéré</span>}
+                {c.paid && <span className="pill-green pill" style={{ fontSize: "0.68rem", flexShrink: 0 }}>Rémunéré</span>}
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* FEATURES SPLIT — Recruteur */}
       <section style={{ borderTop: "1px solid var(--border)" }}>
-        <div className="grid-split" style={{ maxWidth: 900, margin: "0 auto", padding: "5rem 2rem" }}>
-          <div style={{ display: "grid", gap: "0.75rem" }}>
+        <div className="grid-split" style={{ maxWidth: 920, margin: "0 auto", padding: "5.5rem 2rem" }}>
+          <div style={{ display: "grid", gap: "0.65rem" }}>
             {[
               { icon: "📝", title: "Brief en 3 étapes", desc: "Décris ton projet, le profil et les critères physiques." },
               { icon: "⚡", title: "Matching IA en secondes", desc: "L'IA analyse tous les profils et sort les meilleurs." },
-              { icon: "📧", title: "Contact direct 1 crédit", desc: "Email de l'artiste révélé, no bullshit." },
+              { icon: "📧", title: "Contact direct 1 crédit", desc: "Email de l'artiste révélé. Pas d'intermédiaire." },
             ].map(f => (
-              <div key={f.title} className="card" style={{ display: "flex", gap: "1rem", alignItems: "flex-start", padding: "1.1rem" }}>
-                <div className="icon-circle icon-circle-green" style={{ fontSize: "1.2rem", width: 44, height: 44 }}>{f.icon}</div>
+              <div key={f.title} className="card" style={{ display: "flex", gap: "1rem", alignItems: "flex-start", padding: "1.1rem 1.25rem" }}>
+                <div className="icon-circle icon-circle-green" style={{ fontSize: "1.1rem", width: 42, height: 42, flexShrink: 0 }}>{f.icon}</div>
                 <div>
-                  <p style={{ fontWeight: 700, fontSize: "0.92rem", marginBottom: "0.2rem" }}>{f.title}</p>
-                  <p style={{ color: "var(--text-muted)", fontSize: "0.82rem" }}>{f.desc}</p>
+                  <p style={{ fontWeight: 700, fontSize: "0.88rem", marginBottom: "0.2rem", letterSpacing: "-0.01em" }}>{f.title}</p>
+                  <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", lineHeight: 1.55 }}>{f.desc}</p>
                 </div>
               </div>
             ))}
           </div>
           <div>
-            <span className="pill-green pill" style={{ marginBottom: "1rem", display: "inline-flex", fontSize: "0.78rem" }}>🎬 Pour les recruteurs</span>
-            <h2 style={{ fontSize: "1.7rem", fontWeight: 900, lineHeight: 1.25, marginBottom: "0.75rem" }}>
+            <span className="pill-green pill" style={{ marginBottom: "1.25rem", display: "inline-flex", fontSize: "0.72rem" }}>🎬 Pour les recruteurs</span>
+            <h2 style={{ fontSize: "1.75rem", fontWeight: 900, lineHeight: 1.2, letterSpacing: "-0.04em", marginBottom: "0.85rem" }}>
               Trouvez le talent parfait<br /><span className="text-gradient-green">en quelques minutes</span>
             </h2>
-            <p style={{ color: "var(--text-muted)", lineHeight: 1.7, marginBottom: "2rem" }}>
+            <p style={{ color: "var(--text-muted)", lineHeight: 1.75, marginBottom: "2.25rem", fontSize: "0.92rem" }}>
               Fini de scroller Instagram pendant des heures. Postez un brief et l&apos;IA vous propose les candidats scorés, classés, prêts à être contactés.
             </p>
             <Link href="/auth/signup?role=recruiter" className="btn-green">Créer un compte recruteur →</Link>
@@ -305,26 +311,26 @@ export default function HomePage() {
 
       {/* PARTENAIRES */}
       <section style={{ background: "var(--bg-2)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
-        <div className="grid-split" style={{ maxWidth: 900, margin: "0 auto", padding: "4rem 2rem" }}>
+        <div className="grid-split" style={{ maxWidth: 920, margin: "0 auto", padding: "4.5rem 2rem" }}>
           <div>
-            <span className="pill" style={{ marginBottom: "1rem", display: "inline-flex", fontSize: "0.78rem" }}>★ Partenaires Castly</span>
-            <h2 style={{ fontSize: "1.6rem", fontWeight: 900, marginBottom: "0.75rem" }}>Vous proposez des castings ?</h2>
-            <p style={{ color: "var(--text-muted)", lineHeight: 1.7, marginBottom: "1.5rem" }}>
+            <span className="pill" style={{ marginBottom: "1.25rem", display: "inline-flex", fontSize: "0.72rem" }}>★ Partenaires Castly</span>
+            <h2 style={{ fontSize: "1.6rem", fontWeight: 900, letterSpacing: "-0.04em", marginBottom: "0.75rem" }}>Vous proposez des castings ?</h2>
+            <p style={{ color: "var(--text-muted)", lineHeight: 1.75, marginBottom: "1.75rem", fontSize: "0.92rem" }}>
               Vos offres en tête devant des milliers d&apos;artistes ciblés avec le badge <strong style={{ color: "var(--gold)" }}>★ Partenaire</strong>.
             </p>
             <a href="mailto:contact@castly.fr" className="btn-outline">Devenir partenaire →</a>
           </div>
-          <div style={{ display: "grid", gap: "0.75rem" }}>
+          <div style={{ display: "grid", gap: "0.65rem" }}>
             {[
               { icon: "🎯", t: "Ciblage précis", d: "Vos castings atteignent les profils compatibles en priorité." },
-              { icon: "⚡", t: "Badge partenaire IA", d: "Priorité dans le scoring + badge visible sur chaque offre." },
+              { icon: "⚡", t: "Badge partenaire", d: "Priorité dans le scoring + badge visible sur chaque offre." },
               { icon: "📊", t: "Stats en temps réel", d: "Vues, clics, postulations — dashboard complet." },
             ].map(f => (
-              <div key={f.t} className="card" style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start", padding: "1rem" }}>
-                <span style={{ fontSize: "1.2rem" }}>{f.icon}</span>
+              <div key={f.t} className="card" style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start", padding: "1rem 1.2rem" }}>
+                <span style={{ fontSize: "1.1rem", marginTop: "0.05rem" }}>{f.icon}</span>
                 <div>
-                  <p style={{ fontWeight: 700, fontSize: "0.9rem" }}>{f.t}</p>
-                  <p style={{ color: "var(--text-muted)", fontSize: "0.82rem" }}>{f.d}</p>
+                  <p style={{ fontWeight: 700, fontSize: "0.87rem", marginBottom: "0.15rem" }}>{f.t}</p>
+                  <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", lineHeight: 1.5 }}>{f.d}</p>
                 </div>
               </div>
             ))}
@@ -333,33 +339,44 @@ export default function HomePage() {
       </section>
 
       {/* CTA FINAL */}
-      <section style={{ maxWidth: 700, margin: "0 auto", padding: "5rem 2rem 7rem", textAlign: "center" }}>
-        <div className="card" style={{ background: "linear-gradient(135deg, rgba(232,184,109,0.07), rgba(56,199,147,0.04))", borderColor: "var(--gold-border)", padding: "3rem 2rem" }}>
-          <div style={{ fontSize: "3rem", marginBottom: "1rem", animation: "float 3s ease-in-out infinite" }}>🚀</div>
-          <h2 style={{ fontSize: "1.9rem", fontWeight: 900, marginBottom: "0.75rem" }}>Prêt à te lancer ?</h2>
-          <p style={{ color: "var(--text-muted)", marginBottom: "2rem", lineHeight: 1.6 }}>
-            Gratuit pour commencer. 3 crédits offerts. Profil en 5 minutes.
-          </p>
-          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/auth/signup?role=artist" className="btn-gold" style={{ fontSize: "1rem", padding: "0.9rem 2rem" }}>
-              Je suis artiste →
-            </Link>
-            <Link href="/auth/signup?role=recruiter" className="btn-green" style={{ fontSize: "1rem", padding: "0.9rem 2rem" }}>
-              Je recrute →
-            </Link>
+      <section style={{ maxWidth: 680, margin: "0 auto", padding: "5.5rem 2rem 7rem", textAlign: "center" }}>
+        <div className="card" style={{
+          background: "linear-gradient(135deg,rgba(232,184,109,0.06),rgba(56,199,147,0.03))",
+          borderColor: "var(--gold-border)", padding: "3.5rem 2.5rem",
+          position: "relative", overflow: "hidden",
+        }}>
+          <div className="orb" style={{ width: 300, height: 300, background: "rgba(232,184,109,0.06)", top: -120, left: "50%", marginLeft: -150, filter: "blur(60px)", position: "absolute" }} />
+          <div style={{ position: "relative" }}>
+            <div style={{ fontSize: "2.5rem", marginBottom: "1.25rem", animation: "float 4s ease-in-out infinite" }}>🚀</div>
+            <h2 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: "-0.04em", marginBottom: "0.75rem" }}>Prêt à te lancer ?</h2>
+            <p style={{ color: "var(--text-muted)", marginBottom: "2.5rem", lineHeight: 1.7, fontSize: "0.95rem" }}>
+              Gratuit pour commencer. 3 crédits offerts. Profil en 5 minutes.
+            </p>
+            <div style={{ display: "flex", gap: "0.85rem", justifyContent: "center", flexWrap: "wrap" }}>
+              <Link href="/auth/signup?role=artist" className="btn-gold" style={{ fontSize: "0.95rem", padding: "0.85rem 1.85rem" }}>
+                Je suis artiste →
+              </Link>
+              <Link href="/auth/signup?role=recruiter" className="btn-green" style={{ fontSize: "0.95rem", padding: "0.85rem 1.85rem" }}>
+                Je recrute →
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer style={{ borderTop: "1px solid var(--border)", padding: "1.5rem 2rem" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+      <footer style={{ borderTop: "1px solid var(--border)", padding: "1.5rem 2rem", background: "var(--bg-2)" }}>
+        <div style={{ maxWidth: 920, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
           <span className="nav-logo" style={{ fontSize: "1.1rem" }}>Castly</span>
-          <p style={{ color: "var(--text-muted)", fontSize: "0.82rem" }}>© 2026 Castly — Tous droits réservés</p>
+          <p style={{ color: "var(--text-faint)", fontSize: "0.78rem" }}>© 2026 Castly — Tous droits réservés</p>
           <div style={{ display: "flex", gap: "1.5rem" }}>
-            <Link href="/castings" style={{ color: "var(--text-muted)", fontSize: "0.82rem", textDecoration: "none" }}>Castings</Link>
-            <Link href="/artists" style={{ color: "var(--text-muted)", fontSize: "0.82rem", textDecoration: "none" }}>Artistes</Link>
-            <Link href="/auth/login" style={{ color: "var(--text-muted)", fontSize: "0.82rem", textDecoration: "none" }}>Connexion</Link>
+            {[["Castings", "/castings"], ["Artistes", "/artists"], ["Connexion", "/auth/login"]].map(([l, h]) => (
+              <Link key={h} href={h} style={{ color: "var(--text-muted)", fontSize: "0.8rem", textDecoration: "none" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "var(--text-2)")}
+                onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}>
+                {l}
+              </Link>
+            ))}
           </div>
         </div>
       </footer>
