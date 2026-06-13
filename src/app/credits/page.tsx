@@ -16,7 +16,8 @@ export default function CreditsPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
+    supabase.auth.getUser().then(async (result: Awaited<ReturnType<typeof supabase.auth.getUser>>) => {
+      const user = result.data.user;
       if (!user) return;
       const { data } = await supabase
         .from("castly_recruiters")
