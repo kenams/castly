@@ -418,6 +418,30 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* TÉMOIGNAGES */}
+      <section style={{ maxWidth: 920, margin: "0 auto", padding: "5.5rem 2rem 0" }}>
+        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+          <span className="pill-muted pill" style={{ fontSize: "0.72rem", marginBottom: "1rem", display: "inline-flex" }}>Avis</span>
+          <h2 style={{ fontSize: "1.8rem", fontWeight: 900, letterSpacing: "-0.04em" }}>Ce qu&apos;ils en disent</h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.25rem" }}>
+          {[
+            { name: "Sofia M.", role: "Danseuse contemporaine, Paris", quote: "J'avais passé des semaines à chercher des castings sur Instagram sans résultat. Castly m'a trouvé un clip en 48h. Le score de compatibilité est vraiment précis." },
+            { name: "Kevin D.", role: "Directeur artistique, Lyon", quote: "Je cherchais un rappeur pour un clip. J'ai posté mon brief le mardi matin, j'avais 12 profils scorés l'après-midi. Contact direct, pas d'agence. Efficace." },
+            { name: "Amara T.", role: "Mannequin & actrice, Marseille", quote: "Le profil est simple à créer et les castings sont vraiment adaptés à mon style. Je n'aurais jamais trouvé cette campagne photo sans Castly." },
+          ].map((t) => (
+            <div key={t.name} className="card" style={{ padding: "1.75rem", display: "flex", flexDirection: "column", gap: "1rem", background: "var(--bg-2)" }}>
+              <p style={{ color: "var(--gold)", fontSize: "0.95rem", letterSpacing: "0.05em" }}>★★★★★</p>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.87rem", lineHeight: 1.7, fontStyle: "italic" }}>&ldquo;{t.quote}&rdquo;</p>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: "0.88rem", color: "var(--text)" }}>{t.name}</p>
+                <p style={{ fontSize: "0.78rem", color: "var(--text-faint)" }}>{t.role}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* FAQ */}
       <section style={{ maxWidth: 720, margin: "0 auto", padding: "5.5rem 2rem 0" }}>
         <div style={{ textAlign: "center", marginBottom: "3rem" }}>
@@ -461,7 +485,19 @@ export default function HomePage() {
       <footer style={{ borderTop: "1px solid var(--border)", padding: "1.5rem 2rem", background: "var(--bg-2)" }}>
         <div style={{ maxWidth: 920, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
           <span className="nav-logo" style={{ fontSize: "1.1rem" }}>Castly</span>
-          <p style={{ color: "var(--text-faint)", fontSize: "0.78rem" }}>© 2026 Castly — Tous droits réservés</p>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+            <p style={{ color: "var(--text-faint)", fontSize: "0.78rem" }}>© 2026 Castly — Tous droits réservés</p>
+            <a href="https://kah-digital.ch" target="_blank" rel="noopener noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", color: "var(--text-faint)", textDecoration: "none", transition: "color 0.15s" }}
+              onMouseEnter={e => e.currentTarget.style.color = "var(--text-muted)"}
+              onMouseLeave={e => e.currentTarget.style.color = "var(--text-faint)"}
+            >
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: "999px", padding: "0.3rem 0.8rem" }}>
+                <span style={{ width: 10, height: 10, borderRadius: "50%", background: "linear-gradient(135deg, #e8b86d, #c48f38)", display: "inline-block" }} />
+                Une production <strong style={{ color: "var(--text-muted)" }}>KAH Digital</strong>
+              </span>
+            </a>
+          </div>
           <div style={{ display: "flex", gap: "1.5rem" }}>
             {[["Castings", "/castings"], ["Artistes", "/artists"], ["Connexion", "/auth/login"]].map(([l, h]) => (
               <Link key={h} href={h} style={{ color: "var(--text-muted)", fontSize: "0.8rem", textDecoration: "none" }}
