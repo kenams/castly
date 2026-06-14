@@ -5,9 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2026-05-27.dahlia" });
 
 const PACKS = {
-  starter: { priceId: "price_1Thf2vGqBNekpB5SjtaoJwQI", credits: 5,  label: "5 crédits"  },
-  pro:     { priceId: "price_1Thf30GqBNekpB5S6A2QrG0Q", credits: 20, label: "20 crédits" },
-  agency:  { priceId: "price_1Thf31GqBNekpB5S5iJnKYrI", credits: 50, label: "50 crédits" },
+  starter: { priceId: "price_1TiHYOGSZgm5QCNLbjqg9ckM", credits: 5,  label: "5 crédits"  },
+  pro:     { priceId: "price_1TiHYOGSZgm5QCNLIZGnDzes", credits: 20, label: "20 crédits" },
+  agency:  { priceId: "price_1TiHYPGSZgm5QCNLL6KRk2Ug", credits: 50, label: "50 crédits" },
 };
 
 export async function POST(req: Request) {
