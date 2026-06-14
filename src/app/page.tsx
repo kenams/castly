@@ -15,18 +15,50 @@ const ARTIST_TYPES = [
 ];
 
 const STEPS_ARTIST = [
-  { icon: "✍️", title: "Crée ton profil", desc: "5 min. Type, style, expérience, mensurations." },
-  { icon: "⚡", title: "L'IA scanne les castings", desc: "Matching automatique sur des dizaines d'offres en temps réel." },
-  { icon: "🎯", title: "Ton score de compatibilité", desc: "Chaque casting reçoit un score 0-100 taillé pour toi." },
-  { icon: "📧", title: "Postule en 1 clic", desc: "Accède directement aux contacts et à l'offre originale." },
+  { icon: "✍️", title: "Crée ton profil en 5 min", desc: "Type, style, expérience, mensurations. Une fois, c'est fait." },
+  { icon: "🔍", title: "On cherche à ta place", desc: "Des dizaines de castings analysés en continu — tu ne rates plus rien." },
+  { icon: "🎯", title: "Tu vois pourquoi tu matches", desc: "Chaque offre a un score expliqué. Plus de devinettes." },
+  { icon: "📧", title: "Postule en 1 clic", desc: "Contact direct, sans intermédiaire, sans agent à la commission." },
 ];
 
 const STEPS_RECRUITER = [
-  { icon: "📝", title: "Décris ton projet", desc: "Brief en 3 étapes : projet, profil, critères physiques." },
-  { icon: "🤖", title: "Matching IA instantané", desc: "Tous les profils scorés en quelques secondes." },
-  { icon: "📊", title: "Top candidats classés", desc: "Score + raisons du match expliquées clairement." },
-  { icon: "📧", title: "Contact direct", desc: "Révèle l'email avec 1 crédit. Pas d'intermédiaire." },
+  { icon: "📝", title: "Décris ton projet", desc: "Brief en 3 étapes : projet, profil recherché, critères physiques." },
+  { icon: "⚡", title: "Les meilleurs profils remontent", desc: "Tous les artistes classés et scorés en quelques secondes." },
+  { icon: "📊", title: "Tu comprends pourquoi ils matchent", desc: "Score détaillé + raisons claires pour chaque candidat." },
+  { icon: "📧", title: "Contact direct, sans intermédiaire", desc: "L'email de l'artiste révélé avec 1 crédit. Pas d'agence." },
 ];
+
+const FAQS = [
+  { q: "C'est gratuit ?", a: "Oui. Créer ton profil et voir les castings est 100% gratuit. Tu utilises des crédits uniquement pour contacter un artiste (recruteurs) ou accéder à une offre directe." },
+  { q: "C'est quoi les crédits ?", a: "3 crédits offerts à l'inscription. 1 crédit = 1 contact révélé (email de l'artiste ou lien direct de l'offre). Tu peux en racheter sans abonnement." },
+  { q: "Faut-il un agent ou un CV ?", a: "Non. Castly remplace l'agent pour les artistes indépendants. Ton profil Castly est ton book numérique." },
+  { q: "Quels types de castings ?", a: "Clips, films, séries, publicités, événements, showcases, collaborations musicales — 8 catégories d'artistes supportées." },
+  { q: "Comment ça marche pour les recruteurs ?", a: "Tu postes un brief (3 min), tu reçois une liste d'artistes scorés et classés, tu contactes ceux qui t'intéressent. Pas d'intermédiaire, pas de commission." },
+];
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      onClick={() => setOpen(!open)}
+      style={{
+        borderRadius: "0.875rem", border: "1px solid var(--border)",
+        background: open ? "rgba(255,255,255,0.03)" : "var(--bg-2)",
+        padding: "1.1rem 1.4rem", cursor: "pointer",
+        transition: "background 0.2s, border-color 0.2s",
+        borderColor: open ? "var(--gold-border)" : "var(--border)",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem" }}>
+        <p style={{ fontWeight: 700, fontSize: "0.92rem", letterSpacing: "-0.01em" }}>{q}</p>
+        <span style={{ color: "var(--gold)", fontWeight: 900, fontSize: "1.1rem", flexShrink: 0, transition: "transform 0.2s", transform: open ? "rotate(45deg)" : "none" }}>+</span>
+      </div>
+      {open && (
+        <p style={{ marginTop: "0.75rem", color: "var(--text-muted)", fontSize: "0.87rem", lineHeight: 1.7 }}>{a}</p>
+      )}
+    </div>
+  );
+}
 
 function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
   const [val, setVal] = useState(target);
@@ -145,7 +177,7 @@ export default function HomePage() {
         <div style={{ position: "relative", zIndex: 2, maxWidth: 1040, margin: "0 auto", padding: "8rem 2rem 5rem", textAlign: "center", width: "100%" }}>
         <div className="animate-fade-up" style={{ marginBottom: "1.75rem" }}>
           <span className="pill" style={{ fontSize: "0.75rem" }}>
-            ✨ Matching IA — Artistes & Recruteurs
+            🎬 La plateforme casting qui bosse pour toi
           </span>
         </div>
 
@@ -153,16 +185,16 @@ export default function HomePage() {
           fontSize: "clamp(2.8rem,7.5vw,5rem)", fontWeight: 900,
           lineHeight: 1.02, letterSpacing: "-0.055em", marginBottom: "1.5rem",
         }}>
-          Tes prochains castings,<br />
-          <span className="text-gradient-gold">matchés par l&apos;IA</span>
+          Le bon casting.<br />
+          <span className="text-gradient-gold">Sans l&apos;attente.</span>
         </h1>
 
         <p className="animate-fade-up-3" style={{
-          fontSize: "1.08rem", color: "var(--text-muted)", maxWidth: 500,
+          fontSize: "1.08rem", color: "var(--text-muted)", maxWidth: 520,
           margin: "0 auto 3.5rem", lineHeight: 1.75,
         }}>
-          Artiste ou recruteur — l&apos;IA analyse chaque opportunité et te donne
-          un score de compatibilité instantané.
+          Artiste — on trouve les offres qui te correspondent vraiment.<br />
+          Recruteur — le bon profil en quelques minutes, pas en plusieurs jours.
         </p>
 
         {/* DUAL PATH */}
@@ -173,10 +205,10 @@ export default function HomePage() {
               Je suis <span className="text-gradient-gold">artiste</span>
             </p>
             <p style={{ fontSize: "0.87rem", color: "var(--text-muted)", lineHeight: 1.65, marginBottom: "1.5rem" }}>
-              Acteur, rappeur, danseur, mannequin… Crée ton profil et l&apos;IA te trouve les castings qui collent à ton style.
+              Acteur, rappeur, danseur, mannequin… Crée ton profil une fois et reçois uniquement les castings qui matchent vraiment avec toi.
             </p>
             <span className="btn-gold" style={{ fontSize: "0.82rem", padding: "0.55rem 1.2rem" }}>
-              Créer mon profil →
+              Créer mon profil gratuit →
             </span>
           </Link>
 
@@ -186,10 +218,10 @@ export default function HomePage() {
               Je <span className="text-gradient-green">recrute</span>
             </p>
             <p style={{ fontSize: "0.87rem", color: "var(--text-muted)", lineHeight: 1.65, marginBottom: "1.5rem" }}>
-              Producteur, agence, label, brand… Poste un brief et l&apos;IA te sort les profils compatibles en secondes.
+              Producteur, agence, label, brand… Décris ton projet et reçois une shortlist de profils prêts à être contactés.
             </p>
             <span className="btn-green" style={{ fontSize: "0.82rem", padding: "0.55rem 1.2rem" }}>
-              Trouver des artistes →
+              Trouver le bon profil →
             </span>
           </Link>
         </div>
@@ -243,7 +275,7 @@ export default function HomePage() {
       {/* COMMENT ÇA MARCHE */}
       <section style={{ maxWidth: 920, margin: "0 auto", padding: "5.5rem 2rem" }}>
         <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
-          <span className="pill-muted pill" style={{ fontSize: "0.72rem", marginBottom: "1rem", display: "inline-flex" }}>Guide</span>
+          <span className="pill-muted pill" style={{ fontSize: "0.72rem", marginBottom: "1rem", display: "inline-flex" }}>Simple</span>
           <h2 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: "-0.04em", marginBottom: "1.5rem" }}>Comment ça marche</h2>
           <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", borderRadius: "999px", padding: "4px", gap: "3px" }}>
             {(["artist", "recruiter"] as const).map(tab => (
@@ -290,10 +322,10 @@ export default function HomePage() {
           <div>
             <span className="pill" style={{ marginBottom: "1.25rem", display: "inline-flex", fontSize: "0.72rem" }}>🎤 Pour les artistes</span>
             <h2 style={{ fontSize: "1.75rem", fontWeight: 900, lineHeight: 1.2, letterSpacing: "-0.04em", marginBottom: "0.85rem" }}>
-              Fini de chercher,<br /><span className="text-gradient-gold">l&apos;IA travaille pour toi</span>
+              Fini de chercher<br /><span className="text-gradient-gold">les castings un par un.</span>
             </h2>
             <p style={{ color: "var(--text-muted)", lineHeight: 1.75, marginBottom: "2rem", fontSize: "0.92rem" }}>
-              Crée ton profil une fois. L&apos;IA scrute en continu les castings et te donne ton score de compatibilité sur chaque offre. Tu vois directement pourquoi tu matches.
+              Crée ton profil une fois. Castly surveille en continu les offres et te remonte uniquement celles qui te correspondent — avec une explication claire pour chacune.
             </p>
             <div style={{ display: "grid", gap: "0.65rem", marginBottom: "2.25rem" }}>
               {["Score 0-100 sur chaque casting", "Raisons du match expliquées", "Filtres par type, ville, rémunération", "Accès direct à l'offre originale"].map(f => (
@@ -347,10 +379,10 @@ export default function HomePage() {
           <div>
             <span className="pill-green pill" style={{ marginBottom: "1.25rem", display: "inline-flex", fontSize: "0.72rem" }}>🎬 Pour les recruteurs</span>
             <h2 style={{ fontSize: "1.75rem", fontWeight: 900, lineHeight: 1.2, letterSpacing: "-0.04em", marginBottom: "0.85rem" }}>
-              Trouvez le talent parfait<br /><span className="text-gradient-green">en quelques minutes</span>
+              Le bon talent,<br /><span className="text-gradient-green">sans scroller Instagram.</span>
             </h2>
             <p style={{ color: "var(--text-muted)", lineHeight: 1.75, marginBottom: "2.25rem", fontSize: "0.92rem" }}>
-              Fini de scroller Instagram pendant des heures. Postez un brief et l&apos;IA vous propose les candidats scorés, classés, prêts à être contactés.
+              Décrivez votre projet en 3 minutes. Vous recevez une shortlist de profils classés, avec les raisons du match — prêts à être contactés directement, sans agence, sans commission.
             </p>
             <Link href="/auth/signup?role=recruiter" className="btn-green">Créer un compte recruteur →</Link>
           </div>
@@ -386,6 +418,19 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section style={{ maxWidth: 720, margin: "0 auto", padding: "5.5rem 2rem 0" }}>
+        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+          <span className="pill-muted pill" style={{ fontSize: "0.72rem", marginBottom: "1rem", display: "inline-flex" }}>Questions fréquentes</span>
+          <h2 style={{ fontSize: "1.8rem", fontWeight: 900, letterSpacing: "-0.04em" }}>Tout ce que tu veux savoir</h2>
+        </div>
+        <div style={{ display: "grid", gap: "0.75rem" }}>
+          {FAQS.map((faq) => (
+            <FaqItem key={faq.q} q={faq.q} a={faq.a} />
+          ))}
+        </div>
+      </section>
+
       {/* CTA FINAL */}
       <section style={{ maxWidth: 680, margin: "0 auto", padding: "5.5rem 2rem 7rem", textAlign: "center" }}>
         <div className="card" style={{
@@ -396,9 +441,9 @@ export default function HomePage() {
           <div className="orb" style={{ width: 300, height: 300, background: "rgba(232,184,109,0.06)", top: -120, left: "50%", marginLeft: -150, filter: "blur(60px)", position: "absolute" }} />
           <div style={{ position: "relative" }}>
             <div style={{ fontSize: "2.5rem", marginBottom: "1.25rem", animation: "float 4s ease-in-out infinite" }}>🚀</div>
-            <h2 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: "-0.04em", marginBottom: "0.75rem" }}>Prêt à te lancer ?</h2>
+            <h2 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: "-0.04em", marginBottom: "0.75rem" }}>Ton prochain casting t&apos;attend.</h2>
             <p style={{ color: "var(--text-muted)", marginBottom: "2.5rem", lineHeight: 1.7, fontSize: "0.95rem" }}>
-              Gratuit pour commencer. 3 crédits offerts. Profil en 5 minutes.
+              Gratuit pour commencer. 3 crédits offerts dès l&apos;inscription. Profil créé en 5 minutes.
             </p>
             <div style={{ display: "flex", gap: "0.85rem", justifyContent: "center", flexWrap: "wrap" }}>
               <Link href="/auth/signup?role=artist" className="btn-gold" style={{ fontSize: "0.95rem", padding: "0.85rem 1.85rem" }}>
