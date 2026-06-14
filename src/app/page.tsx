@@ -54,6 +54,7 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
 export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState<"artist" | "recruiter">("artist");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     createClient().auth.getUser().then((r: Awaited<ReturnType<ReturnType<typeof createClient>["auth"]["getUser"]>>) => setIsLoggedIn(!!r.data.user));
@@ -67,7 +68,8 @@ export default function HomePage() {
       {/* NAV */}
       <nav className="nav">
         <Link href="/" className="nav-logo">Castly</Link>
-        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+        {/* Desktop links */}
+        <div className="nav-links-desktop" style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
           <Link href="/castings" style={{ color: "var(--text-muted)", fontSize: "0.85rem", textDecoration: "none", padding: "0.4rem 0.7rem", transition: "color 0.15s" }}
             onMouseEnter={e => (e.currentTarget.style.color = "var(--text)")}
             onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}>
@@ -87,15 +89,48 @@ export default function HomePage() {
             </>
           )}
         </div>
+        {/* Mobile hamburger */}
+        <button className="nav-hamburger" onClick={() => setMenuOpen(true)} aria-label="Menu">
+          <span /><span /><span />
+        </button>
+        {/* Mobile menu overlay */}
+        <div className={`nav-mobile-menu ${menuOpen ? "open" : ""}`}>
+          <button className="nav-mobile-close" onClick={() => setMenuOpen(false)}>✕</button>
+          <Link href="/castings" onClick={() => setMenuOpen(false)}>Castings</Link>
+          <Link href="/artists" onClick={() => setMenuOpen(false)}>Artistes</Link>
+          {isLoggedIn ? (
+            <Link href="/dashboard" className="btn-gold" onClick={() => setMenuOpen(false)}>Dashboard →</Link>
+          ) : (
+            <>
+              <Link href="/auth/login" className="btn-outline" onClick={() => setMenuOpen(false)}>Connexion</Link>
+              <Link href="/auth/signup" className="btn-gold" onClick={() => setMenuOpen(false)}>Commencer</Link>
+            </>
+          )}
+        </div>
       </nav>
 
       {/* HERO */}
       <section style={{ position: "relative", maxWidth: 1040, margin: "0 auto", padding: "5.5rem 2rem 4.5rem", textAlign: "center", overflow: "hidden" }}>
+        {/* Background video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
+            width: "100%", height: "100%", objectFit: "cover",
+            opacity: 0.09, pointerEvents: "none", zIndex: 0,
+          }}
+        >
+          <source src="https://videos.pexels.com/video-files/3209828/3209828-uhd_2560_1440_25fps.mp4" type="video/mp4" />
+        </video>
         {/* Orbs */}
         <div className="orb" style={{ width: 600, height: 600, background: "rgba(232,184,109,0.055)", top: -280, left: "50%", marginLeft: -300 }} />
         <div className="orb" style={{ width: 320, height: 320, background: "rgba(56,199,147,0.045)", top: 80, right: -80, animationDelay: "-6s" }} />
         <div className="orb" style={{ width: 240, height: 240, background: "rgba(232,184,109,0.04)", bottom: -60, left: -60, animationDelay: "-10s" }} />
 
+        <div style={{ position: "relative", zIndex: 1 }}>
         <div className="animate-fade-up" style={{ marginBottom: "1.75rem" }}>
           <span className="pill" style={{ fontSize: "0.75rem" }}>
             ✨ Matching IA — Artistes & Recruteurs
@@ -151,6 +186,7 @@ export default function HomePage() {
         <p style={{ marginTop: "2rem", fontSize: "0.8rem", color: "var(--text-faint)" }}>
           3 crédits offerts à l&apos;inscription · Profil en 5 min · Sans CB
         </p>
+        </div>{/* /z-index wrapper */}
       </section>
 
       {/* STATS BAR */}

@@ -50,6 +50,10 @@ export default function CastingsPage() {
       <nav className="nav">
         <Link href="/" className="nav-logo">Castly</Link>
         <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+          <Link href="/castings" style={{ color: "var(--gold)", fontSize: "0.85rem", textDecoration: "none", padding: "0.4rem 0.7rem", fontWeight: 600 }}>Castings</Link>
+          <Link href="/artists" style={{ color: "var(--text-muted)", fontSize: "0.85rem", textDecoration: "none", padding: "0.4rem 0.7rem", transition: "color 0.15s" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--text)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}>Artistes</Link>
           {isLoggedIn ? (
             <Link href="/dashboard" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Dashboard →</Link>
           ) : (

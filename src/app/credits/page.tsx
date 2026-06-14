@@ -12,13 +12,20 @@ const PACKS = [
 export default function CreditsPage() {
   const [credits, setCredits] = useState<number | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
+  const [dashboardHref, setDashboardHref] = useState("/recruiter/dashboard");
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(async (r: Awaited<ReturnType<ReturnType<typeof createClient>["auth"]["getUser"]>>) => {
       if (!r.data.user) return;
-      const { data } = await supabase.from("castly_recruiters").select("credits").eq("user_id", r.data.user.id).single();
-      if (data) setCredits(data.credits);
+      // Check if recruiter or artist to set correct dashboard link
+      const { data: rec } = await supabase.from("castly_recruiters").select("credits").eq("user_id", r.data.user.id).single();
+      if (rec) {
+        setCredits(rec.credits);
+        setDashboardHref("/recruiter/dashboard");
+      } else {
+        setDashboardHref("/dashboard");
+      }
     });
   }, []);
 
@@ -38,7 +45,7 @@ export default function CreditsPage() {
       <nav className="nav">
         <Link href="/" className="nav-logo">Castly</Link>
         <div style={{ display: "flex", gap: "0.6rem" }}>
-          <Link href="/recruiter/dashboard" className="btn-outline" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>← Dashboard</Link>
+          <Link href={dashboardHref} className="btn-outline" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>← Dashboard</Link>
         </div>
       </nav>
 

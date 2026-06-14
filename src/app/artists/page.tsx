@@ -42,6 +42,7 @@ export default function ArtistsPage() {
         <Link href="/" className="nav-logo">Castly</Link>
         <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
           <Link href="/castings" style={{ color: "var(--text-muted)", fontSize: "0.85rem", textDecoration: "none", padding: "0.4rem 0.7rem", transition: "color 0.15s" }}>Castings</Link>
+          <Link href="/artists" style={{ color: "var(--gold)", fontSize: "0.85rem", textDecoration: "none", padding: "0.4rem 0.7rem", fontWeight: 600 }}>Artistes</Link>
           {isLoggedIn ? (
             <Link href="/dashboard" className="btn-gold" style={{ padding: "0.45rem 1rem", fontSize: "0.82rem" }}>Dashboard →</Link>
           ) : (

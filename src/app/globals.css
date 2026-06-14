@@ -406,9 +406,49 @@ textarea.input { resize: vertical; line-height: 1.6; }
 .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; }
 .grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: center; }
 
+/* ── HAMBURGER NAV ── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column; justify-content: center; align-items: center;
+  gap: 5px; width: 36px; height: 36px;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer; padding: 0;
+  transition: border-color 0.15s;
+}
+.nav-hamburger:hover { border-color: var(--border-hover); }
+.nav-hamburger span {
+  display: block; width: 16px; height: 1.5px;
+  background: var(--text-muted); border-radius: 2px;
+  transition: all 0.2s;
+}
+.nav-mobile-menu {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(7,7,15,0.97);
+  backdrop-filter: blur(20px);
+  z-index: 100;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 1.5rem;
+}
+.nav-mobile-menu.open { display: flex; }
+.nav-mobile-menu a, .nav-mobile-menu button {
+  font-size: 1.3rem; font-weight: 700; color: var(--text);
+  text-decoration: none; padding: 0.5rem 1.5rem;
+  border-radius: 999px;
+}
+.nav-mobile-close {
+  position: absolute; top: 1.2rem; right: 1.2rem;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-muted); width: 36px; height: 36px;
+  border-radius: 50%; font-size: 1.1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
 @media (max-width: 720px) {
   .nav { padding: 0.85rem 1.1rem; gap: 0.5rem; }
   .nav-logo { font-size: 1.15rem; }
+  .nav-links-desktop { display: none !important; }
+  .nav-hamburger { display: flex; }
   .grid-2, .grid-4, .grid-split, .grid-3 { grid-template-columns: 1fr; }
   .path-card { padding: 1.6rem 1.25rem; }
   .btn-gold, .btn-green, .btn-outline { font-size: 0.85rem; padding: 0.6rem 1.15rem; }
