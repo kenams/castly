@@ -110,27 +110,32 @@ export default function HomePage() {
       </nav>
 
       {/* HERO */}
-      <section style={{ position: "relative", maxWidth: 1040, margin: "0 auto", padding: "5.5rem 2rem 4.5rem", textAlign: "center", overflow: "hidden" }}>
-        {/* Background video */}
+      <section style={{ position: "relative", minHeight: "92vh", display: "flex", alignItems: "center", overflow: "hidden" }}>
+        {/* Full background video */}
         <video
           autoPlay
           muted
           loop
           playsInline
           style={{
-            position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
+            position: "absolute", top: 0, left: 0,
             width: "100%", height: "100%", objectFit: "cover",
-            opacity: 0.09, pointerEvents: "none", zIndex: 0,
+            opacity: 0.18, pointerEvents: "none", zIndex: 0,
           }}
         >
-          <source src="https://videos.pexels.com/video-files/3209828/3209828-uhd_2560_1440_25fps.mp4" type="video/mp4" />
+          <source src="/hero.mp4" type="video/mp4" />
         </video>
+        {/* Dark overlay gradient */}
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+          background: "linear-gradient(to bottom, rgba(7,7,15,0.55) 0%, rgba(7,7,15,0.3) 50%, rgba(7,7,15,0.75) 100%)",
+        }} />
         {/* Orbs */}
-        <div className="orb" style={{ width: 600, height: 600, background: "rgba(232,184,109,0.055)", top: -280, left: "50%", marginLeft: -300 }} />
-        <div className="orb" style={{ width: 320, height: 320, background: "rgba(56,199,147,0.045)", top: 80, right: -80, animationDelay: "-6s" }} />
-        <div className="orb" style={{ width: 240, height: 240, background: "rgba(232,184,109,0.04)", bottom: -60, left: -60, animationDelay: "-10s" }} />
+        <div className="orb" style={{ width: 600, height: 600, background: "rgba(232,184,109,0.055)", top: -280, left: "50%", marginLeft: -300, zIndex: 1 }} />
+        <div className="orb" style={{ width: 320, height: 320, background: "rgba(56,199,147,0.045)", top: 80, right: -80, animationDelay: "-6s", zIndex: 1 }} />
+        <div className="orb" style={{ width: 240, height: 240, background: "rgba(232,184,109,0.04)", bottom: -60, left: -60, animationDelay: "-10s", zIndex: 1 }} />
 
-        <div style={{ position: "relative", zIndex: 1 }}>
+        <div style={{ position: "relative", zIndex: 2, maxWidth: 1040, margin: "0 auto", padding: "5.5rem 2rem 4.5rem", textAlign: "center", width: "100%" }}>
         <div className="animate-fade-up" style={{ marginBottom: "1.75rem" }}>
           <span className="pill" style={{ fontSize: "0.75rem" }}>
             ✨ Matching IA — Artistes & Recruteurs
@@ -186,7 +191,7 @@ export default function HomePage() {
         <p style={{ marginTop: "2rem", fontSize: "0.8rem", color: "var(--text-faint)" }}>
           3 crédits offerts à l&apos;inscription · Profil en 5 min · Sans CB
         </p>
-        </div>{/* /z-index wrapper */}
+        </div>{/* /content wrapper */}
       </section>
 
       {/* STATS BAR */}
