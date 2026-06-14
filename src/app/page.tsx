@@ -55,9 +55,16 @@ export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState<"artist" | "recruiter">("artist");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     createClient().auth.getUser().then((r: Awaited<ReturnType<ReturnType<typeof createClient>["auth"]["getUser"]>>) => setIsLoggedIn(!!r.data.user));
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const steps = activeTab === "artist" ? STEPS_ARTIST : STEPS_RECRUITER;
@@ -66,7 +73,7 @@ export default function HomePage() {
     <main style={{ minHeight: "100vh", background: "var(--bg)", overflowX: "hidden" }}>
 
       {/* NAV */}
-      <nav className="nav">
+      <nav className={`nav${scrolled ? " scrolled" : ""}`}>
         <Link href="/" className="nav-logo">Castly</Link>
         {/* Desktop links */}
         <div className="nav-links-desktop" style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
@@ -135,7 +142,7 @@ export default function HomePage() {
         <div className="orb" style={{ width: 320, height: 320, background: "rgba(56,199,147,0.045)", top: 80, right: -80, animationDelay: "-6s", zIndex: 1 }} />
         <div className="orb" style={{ width: 240, height: 240, background: "rgba(232,184,109,0.04)", bottom: -60, left: -60, animationDelay: "-10s", zIndex: 1 }} />
 
-        <div style={{ position: "relative", zIndex: 2, maxWidth: 1040, margin: "0 auto", padding: "5.5rem 2rem 4.5rem", textAlign: "center", width: "100%" }}>
+        <div style={{ position: "relative", zIndex: 2, maxWidth: 1040, margin: "0 auto", padding: "8rem 2rem 5rem", textAlign: "center", width: "100%" }}>
         <div className="animate-fade-up" style={{ marginBottom: "1.75rem" }}>
           <span className="pill" style={{ fontSize: "0.75rem" }}>
             ✨ Matching IA — Artistes & Recruteurs

@@ -121,11 +121,17 @@ body {
 .nav {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0.85rem 2rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  position: absolute; top: 0; left: 0; right: 0; z-index: 100;
+  transition: background 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease;
+}
+.nav.scrolled {
   background: rgba(7,7,15,0.82);
+  border-bottom: 1px solid var(--border);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  position: sticky; top: 0; z-index: 50;
+  position: fixed;
 }
 .nav-logo {
   font-size: 1.3rem; font-weight: 900; letter-spacing: -0.05em; text-decoration: none;
