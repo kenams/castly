@@ -47,8 +47,7 @@ jobs:
         if: ${{ github.event.inputs.scrape_only != 'true' }}
         working-directory: prospection
         env:
-          BREVO_SMTP_USER: ${{ secrets.BREVO_SMTP_USER }}
-          BREVO_SMTP_PASS: ${{ secrets.BREVO_SMTP_PASS }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
         run: python prospect_castly.py
 
       - name: Save CSV cache

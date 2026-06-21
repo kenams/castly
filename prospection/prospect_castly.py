@@ -1,19 +1,14 @@
 """
-Prospection Castly — invitations email via Brevo
+Prospection Castly — invitations email via Brevo API REST
 - Artistes  → invitation créer profil sur castly.kah-digital.ch
 - Agences   → invitation poster leurs castings sur castly.kah-digital.ch
-Envoi : 50/jour max (split 25 artistes + 25 agences)
+Envoi : 20/jour (10 artistes + 10 agences)
 """
-import os, smtplib, csv, time
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import os, csv, time, json, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-SMTP_HOST = "smtp-relay.brevo.com"
-SMTP_PORT = 587
-SMTP_USER = os.environ.get("BREVO_SMTP_USER", "aec8d4001@smtp-brevo.com")
-SMTP_PASS = os.environ.get("BREVO_SMTP_PASS", "")
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
 FROM_EMAIL = "contact@kah-digital.ch"
 FROM_NAME  = "Kenams — Castly"
 
@@ -96,23 +91,31 @@ Kenams — Castly
     return subject, html, text
 
 
-# ── Envoi SMTP ───────────────────────────────────────────────────────────────
+# ── Envoi via Brevo API REST ─────────────────────────────────────────────────
 def send(to_email: str, to_name: str, subject: str, html: str, text: str) -> bool:
-    if not SMTP_PASS:
+    if not BREVO_API_KEY:
         print(f"  [DRY] {to_email} — {subject[:50]}")
         return True
     try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"]    = f"{FROM_NAME} <{FROM_EMAIL}>"
-        msg["To"]      = f"{to_name} <{to_email}>"
-        msg["Reply-To"] = FROM_EMAIL
-        msg.attach(MIMEText(text, "plain", "utf-8"))
-        msg.attach(MIMEText(html, "html", "utf-8"))
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as s:
-            s.starttls()
-            s.login(SMTP_USER, SMTP_PASS)
-            s.sendmail(FROM_EMAIL, [to_email], msg.as_string())
+        payload = json.dumps({
+            "sender": {"name": FROM_NAME, "email": FROM_EMAIL},
+            "to": [{"email": to_email, "name": to_name}],
+            "replyTo": {"email": FROM_EMAIL},
+            "subject": subject,
+            "htmlContent": html,
+            "textContent": text,
+        }).encode()
+        req = urllib.request.Request(
+            "https://api.brevo.com/v3/smtp/email",
+            data=payload,
+            headers={
+                "api-key": BREVO_API_KEY,
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            method="POST"
+        )
+        urllib.request.urlopen(req)
         return True
     except Exception as e:
         print(f"  ERR {to_email}: {e}")
