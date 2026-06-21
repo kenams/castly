@@ -18,7 +18,7 @@ FROM_EMAIL = "contact@kah-digital.ch"
 FROM_NAME  = "Kenams — Castly"
 
 APP_URL    = "https://castly.kah-digital.ch"
-MAX_PER_RUN = 50
+MAX_PER_RUN = 20
 
 ARTISTS_CSV  = Path(__file__).parent / "artists.csv"
 AGENCIES_CSV = Path(__file__).parent / "agencies.csv"
