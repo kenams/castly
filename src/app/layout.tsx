@@ -6,11 +6,11 @@ export const metadata: Metadata = {
   description: "Castly connecte artistes et recruteurs sans agent ni commission. Acteur, rappeur, danseur, mannequin — trouve les castings faits pour toi en quelques minutes.",
   authors: [{ name: "KAH Digital", url: "https://kah-digital.ch" }],
   keywords: ["casting", "artiste", "recruteur", "clip", "mannequin", "danseur", "rappeur", "acteur", "casting France", "plateforme casting"],
-  metadataBase: new URL("https://castly-chi.vercel.app"),
+  metadataBase: new URL("https://castly.kah-digital.ch"),
   openGraph: {
     title: "Castly — Le bon casting, sans l'attente",
     description: "La plateforme qui connecte artistes et recruteurs. Profil gratuit, contact direct, sans agence.",
-    url: "https://castly-chi.vercel.app",
+    url: "https://castly.kah-digital.ch",
     siteName: "Castly",
     type: "website",
     locale: "fr_FR",
@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <head>
-        <link rel="canonical" href="https://castly-chi.vercel.app" />
+        <link rel="canonical" href="https://castly.kah-digital.ch" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />

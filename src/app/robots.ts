@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/dashboard", "/onboarding", "/recruiter", "/api", "/auth"],
       },
     ],
-    sitemap: "https://castly-chi.vercel.app/sitemap.xml",
+    sitemap: "https://castly.kah-digital.ch/sitemap.xml",
   };
 }

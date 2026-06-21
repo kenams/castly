@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     .single();
   if (!recruiter) return NextResponse.json({ error: "Recruiter account required" }, { status: 403 });
 
-  const origin = req.headers.get("origin") || "https://castly-chi.vercel.app";
+  const origin = req.headers.get("origin") || "https://castly.kah-digital.ch";
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",

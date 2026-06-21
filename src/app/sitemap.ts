@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
 
-const BASE = "https://castly-chi.vercel.app";
+const BASE = "https://castly.kah-digital.ch";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
